@@ -3,57 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assistente de Atendimento Profissional</title>
+    <title>Assistente de Atendimento</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
-            --bg: #f8fafc;
-            --card: #ffffff;
+            --bg-gradient: linear-gradient(135deg, #0ea5e9 0%, #1d4ed8 100%);
+            --card-bg: #ffffff;
             --primary: #0284c7;
             --primary-hover: #0369a1;
             --success: #16a34a;
             --success-hover: #15803d;
             --danger: #dc2626;
             --danger-hover: #b91c1c;
-            --text: #0f172a;
+            --text: #1e293b;
             --muted: #64748b;
-            --border: #e2e8f0;
-            --radius: 10px;
+            --border: #cbd5e1;
+            --radius: 12px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg);
+            background: var(--bg-gradient);
             color: var(--text);
             padding: 24px;
+            min-height: 100vh;
             line-height: 1.5;
         }
 
         .container {
             max-width: 960px;
             margin: 0 auto;
-            background: var(--card);
+            background: var(--card-bg);
             padding: 32px;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
 
         header {
             margin-bottom: 24px;
-            border-bottom: 1px solid var(--border);
+            border-bottom: 2px solid #e0f2fe;
             padding-bottom: 16px;
         }
 
-        h1 { font-size: 1.5rem; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 10px; }
+        h1 { font-size: 1.6rem; font-weight: 700; color: #0369a1; display: flex; align-items: center; gap: 10px; }
         .subtitle { color: var(--muted); font-size: 0.95rem; margin-top: 4px; }
 
         .api-box {
-            background: #f8fafc;
-            border: 1px solid var(--border);
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
             padding: 14px 18px;
             border-radius: var(--radius);
             margin-bottom: 24px;
@@ -63,17 +63,18 @@
             flex-wrap: wrap;
             gap: 12px;
             font-size: 0.88rem;
-            color: var(--muted);
+            color: #0369a1;
         }
 
         .api-box input {
             flex: 1;
             min-width: 260px;
             padding: 9px 14px;
-            border: 1px solid var(--border);
+            border: 1px solid #bae6fd;
             border-radius: 6px;
             font-size: 0.9rem;
             outline: none;
+            background: #ffffff;
             transition: border 0.2s;
         }
 
@@ -92,9 +93,9 @@
 
         .step-card {
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 20px;
-            background: #ffffff;
+            background: #f8fafc;
             box-shadow: 0 2px 8px rgba(0,0,0,0.02);
             display: flex;
             flex-direction: column;
@@ -111,11 +112,11 @@
         }
 
         .paste-zone {
-            border: 2px dashed #cbd5e1;
-            border-radius: 10px;
+            border: 2px dashed #0284c7;
+            border-radius: 12px;
             padding: 20px;
             text-align: center;
-            background: #fafaf9;
+            background: #f0f9ff;
             cursor: text;
             transition: all 0.2s;
             min-height: 130px;
@@ -128,8 +129,8 @@
         }
 
         .paste-zone:focus, .paste-zone.active-paste {
-            border-color: var(--primary);
-            background: #f0fdf4;
+            border-color: #0369a1;
+            background: #e0f2fe;
         }
 
         .paste-zone img {
@@ -175,7 +176,7 @@
             padding: 14px;
             font-size: 1.05rem;
             margin-bottom: 24px;
-            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2);
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
         }
         .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
 
@@ -184,7 +185,7 @@
             color: var(--text);
             border: 1px solid var(--border);
         }
-        .btn-outline:hover { background: #f8fafc; border-color: #94a3b8; }
+        .btn-outline:hover { background: #f1f5f9; border-color: #94a3b8; }
 
         textarea {
             width: 100%;
@@ -195,6 +196,7 @@
             font-size: 0.95rem;
             resize: vertical;
             outline: none;
+            background: #ffffff;
             transition: border 0.2s;
         }
 
@@ -214,11 +216,11 @@
         .status-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
 
         .result-box {
-            border: 1px solid var(--border);
-            border-radius: 12px;
+            border: 2px solid #bae6fd;
+            border-radius: 14px;
             padding: 24px;
-            background: #ffffff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            background: #f0f9ff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
 
         #resultadoFinal {
@@ -226,7 +228,7 @@
             font-size: 0.98rem;
             line-height: 1.6;
             height: 260px;
-            background: #f8fafc;
+            background: #ffffff;
             margin-top: 12px;
             margin-bottom: 16px;
         }
@@ -238,13 +240,13 @@
     <header>
         <h1>
             <svg style="width:28px;height:28px;fill:var(--primary);" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12A10 10 0 0 0 12 22A10 10 0 0 0 22 12A10 10 0 0 0 12 2M12 4A8 8 0 0 1 20 12A8 8 0 0 1 12 20A8 8 0 0 1 4 12A8 8 0 0 1 12 4M12 6A6 6 0 0 0 6 12A6 6 0 0 0 12 18A6 6 0 0 0 18 12A6 6 0 0 0 12 6M12 8A4 4 0 0 1 16 12A4 4 0 0 1 12 16A4 4 0 0 1 8 12A4 4 0 0 1 12 8Z"/></svg>
-            Assistente de Atendimento Profissional
+            Assistente de Atendimento
         </h1>
-        <p class="subtitle">Gere relatórios padronizados em 3ª pessoa de forma rápida com IA, reconhecimento de voz e leitura de prints.</p>
+        <p class="subtitle">Gere relatórios padronizados em 3ª pessoa com inteligência artificial, reconhecimento de voz e leitura de prints.</p>
     </header>
 
     <div class="api-box">
-        <span>Chave Gemini IA (Opcional): Se vazio, o sistema usa o Interpretador Inteligente Local.</span>
+        <span><strong>Chave Gemini IA (Opcional):</strong> Se vazio, o sistema usa o Interpretador Inteligente Local.</span>
         <input type="password" id="apiKeyInput" placeholder="Opcional: Cole aqui sua Gemini API Key (AIza...)">
     </div>
 
@@ -257,9 +259,10 @@
             </div>
 
             <div class="paste-zone" id="pasteZone" tabindex="0" contenteditable="true" spellcheck="false">
-                <div id="dropText" contenteditable="false" style="pointer-events: none;">
-                    <svg style="width:32px;height:32px;fill:var(--muted);margin-bottom:6px;" viewBox="0 0 24 24"><path d="M19,3H5C3.89,3 3,3.89 3,5V19C3,20.1 3.9,21 5,21H19C20.1,21 21,20.1 21,19V5C21,3.89 20.1,3 19,3M19,5V15.56C18.42,15.2 17.73,15 17,15C13.69,15 11,17.69 11,21H5V5H19M17,17A3,3 0 0,1 20,20A3,3 0 0,1 17,23A3,3 0 0,1 14,20A3,3 0 0,1 17,17Z"/></svg>
-                    <p style="font-size: 0.95rem; font-weight: 600; color: var(--text);">Cole o Print aqui (Ctrl + V)</p>
+                <div id="dropText" contenteditable="false" style="pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                    <!-- Ícone visual explicativo de print de tela -->
+                    <svg style="width:36px;height:36px;fill:#0284c7;" viewBox="0 0 24 24"><path d="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M4,6V18H20V6H4M6,9H18V11H6V9M6,13H14V15H6V13Z"/></svg>
+                    <p style="font-size: 0.95rem; font-weight: 600; color: #0369a1;">Cole o Print aqui (Ctrl + V)</p>
                 </div>
                 <img id="previewImg" contenteditable="false" style="display: none;" alt="Print">
             </div>
@@ -446,7 +449,7 @@
         imagemBase64 = null;
         previewImg.src = '';
         previewImg.style.display = 'none';
-        dropText.style.display = 'block';
+        dropText.style.display = 'flex';
         btnRemoverImg.style.display = 'none';
         fileInput.value = '';
     });
