@@ -644,17 +644,19 @@
         return { cliente, mensagemCliente: mensagemUnida };
     }
 
-    // --- MOTOR FORÇADO DE RESUMO EXECUTIVO (IMPEDE CÓPIA LITERAL) ---
+    // --- MOTOR INTELIGENTE DE RESUMO DO CLIENTE ---
     function interpretarSolicitacaoCliente(textoBruto) {
         if (!textoBruto || textoBruto.length < 3) {
-            return 'Cliente entrou em contato solicitando suporte técnico e verificação geral no sistema.';
+            return 'Cliente entrou em contato solicitando suporte técnico geral no sistema.';
         }
 
         let t = textoBruto.toLowerCase();
 
-        // Identificação de termos específicos para gerar resumos perfeitos
+        if (t.includes('nota fiscal') && (t.includes('perda') || t.includes('resíduo') || t.includes('residuos'))) {
+            return 'Cliente entrou em contato solicitando orientação para emitir uma nota fiscal de perda de mercadorias, tendo como destinatária uma empresa de coleta e tratamento de resíduos.';
+        }
         if (t.includes('lamotrigina') || t.includes('teuto') || t.includes('controlado') || t.includes('sngpc') || t.includes('estoque')) {
-            return 'Cliente entrou em contato informando divergência no inventário de medicamentos controlados e solicitou auxílio técnico para rastrear a nota fiscal correspondente.';
+            return 'Cliente entrou em contato informando divergência no inventário de medicamentos controlados e solicitando auxílio técnico para rastrear a nota fiscal correspondente.';
         }
         if (t.includes('stock brasil') || t.includes('estoque brasil') || (t.includes('arquivo') && t.includes('inventário'))) {
             return 'Cliente entrou em contato solicitando a exportação do arquivo de produtos para inventário no formato padrão Stock Brasil.';
@@ -672,11 +674,14 @@
             return 'Cliente entrou em contato informando indisponibilidade de conexão com o servidor principal.';
         }
 
-        // Se for qualquer outro texto longo, o motor gera um resumo formal em 3ª pessoa e descarta a cópia
-        return 'Cliente entrou em contato relatando inconsistências operacionais no sistema e solicitando suporte técnico especializado.';
+        let limpo = t.replace(/^(oi|olá|preciso|gostaria|quero|favor)[,!.\s]*/gi, '').trim();
+        if (limpo.length > 70) limpo = limpo.substring(0, 70) + '...';
+        limpo = limpo.charAt(0).toUpperCase() + limpo.slice(1);
+
+        return `Cliente entrou em contato solicitando suporte referente a: ${limpo}`;
     }
 
-    // --- MOTOR FORÇADO DE RESUMO DA RESPOSTA TÉCNICA ---
+    // --- MOTOR INTELIGENTE DE RESUMO DA RESPOSTA TÉCNICA (TRATA PENDÊNCIAS E EXPEDIENTE) ---
     function interpretarRespostaTecnica(texto) {
         if (!texto || texto.length < 3) {
             return 'Sim. O suporte executou as verificações necessárias e o sistema foi normalizado conforme validado com o cliente.';
@@ -684,6 +689,10 @@
 
         let t = texto.toLowerCase();
 
+        // Se informou encerramento de expediente ou continuação no dia seguinte
+        if (t.includes('expediente') || t.includes('amanhã') || t.includes('retornar') || t.includes('continuar') || t.includes('fechou')) {
+            return 'Parcial. O suporte iniciou os procedimentos de atendimento e validações com o cliente, porém o expediente foi encerrado, ficando combinado a continuação da tratativa no próximo dia útil.';
+        }
         if (t.includes('histórico') || t.includes('localizad') || t.includes('nota') || t.includes('produto')) {
             return 'Sim. Realizado atendimento com o cliente onde foi efetuado o rastreio e localizada a nota fiscal através do histórico do produto.';
         }
@@ -700,7 +709,9 @@
             return 'Sim. O procedimento técnico foi aplicado com sucesso, restabelecendo o perfeito funcionamento do sistema.';
         }
 
-        return 'Sim. O suporte prestou o atendimento necessário e o procedimento foi concluído com êxito.';
+        let frase = t.charAt(0).toUpperCase() + t.slice(1);
+        if (!/[.!?]$/.test(frase)) frase += '.';
+        return `Sim. ${frase}`;
     }
 
     // --- BOTÃO PRINCIPAL ---
@@ -717,16 +728,16 @@
                 mostrarStatus('Gerando relatório com IA Gemini...', 'loading');
                 const parts = [{
                     text: `Analise o print, o texto do cliente ("${textoDireto}") e a ação do técnico ("${acao}").
-Gere o relatório EXATAMENTE neste formato de 3 perguntas (sem asteriscos, sem NUNCA copiar o texto literal do cliente):
+Gere o relatório EXATAMENTE neste formato de 3 perguntas (sem asteriscos, interpretando a ação do técnico de forma executiva, respeitando se o caso foi resolvido ou se ficou pendente para o dia seguinte):
 
 Qual nome do cliente atendido?
 [Nome do Cliente - Nome da Empresa extraídos do topo do print ou 'Não informado']
 
 Qual a solicitação do cliente?
-[Escreva um resumo executivo e profissional em 3ª pessoa formal do problema relatado, transformando gírias e textos longos em um relatório técnico objetivo]
+[Escreva um resumo executivo profissional em 3ª pessoa formal, iniciando com 'Cliente entrou em contato solicitando...']
 
 A solicitação foi atendida / resolvida?
-Sim. [Escreva uma frase formal e profissional em 3ª pessoa resumindo a ação do suporte técnico].`
+[Se foi resolvido, inicie com 'Sim.' e resuma a ação. Se o expediente encerrou ou ficou para amanhã, inicie com 'Parcial.' e explique que continuará no próximo dia útil].`
                 }];
 
                 if (imagemBase64) {
