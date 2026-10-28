@@ -148,6 +148,7 @@
         button:disabled { opacity: 0.6; cursor: not-allowed; }
         .btn-record { background: var(--success); color: white; }
         .btn-pause { background: var(--warning); color: white; }
+        .btn-stop { background: var(--danger); color: white; }
         .btn-primary {
             background: var(--primary);
             color: white;
@@ -208,11 +209,11 @@
 <body>
 
 <div class="container">
-    <h1>🎙️ Assistente de Atendimento Formal</h1>
+    <h1>??? Assistente de Atendimento Formal</h1>
     <p class="subtitle">Cole o print ou texto do cliente, informe o procedimento e gere o relatório automático.</p>
 
     <div class="api-box">
-        <span>🔑 <strong>Chave Gemini IA (Opcional):</strong> Se vazio, usa o Interpretador Automático local.</span>
+        <span>?? <strong>Chave Gemini IA (Opcional):</strong> Se vazio, usa o Interpretador Automático local.</span>
         <input type="password" id="apiKeyInput" placeholder="Opcional: Cole aqui sua Gemini API Key (AIza...)">
     </div>
 
@@ -221,12 +222,12 @@
         <div class="step-card">
             <div class="step-title">
                 <span>1. Print ou Texto do Cliente</span>
-                <button type="button" id="btnRemoverImg" class="btn-outline" style="padding: 4px 10px; font-size: 0.8rem; display: none;">✖ Remover Print</button>
+                <button type="button" id="btnRemoverImg" class="btn-outline" style="padding: 4px 10px; font-size: 0.8rem; display: none;">? Remover Print</button>
             </div>
 
             <div class="paste-zone" id="pasteZone" tabindex="0" contenteditable="true" spellcheck="false">
                 <div id="dropText" contenteditable="false" style="pointer-events: none;">
-                    <p style="font-size: 1.4rem; margin-bottom: 2px;">📋</p>
+                    <p style="font-size: 1.4rem; margin-bottom: 2px;">??</p>
                     <p><strong>Cole o Print (Ctrl + V)</strong></p>
                 </div>
                 <img id="previewImg" contenteditable="false" style="display: none;" alt="Print">
@@ -236,8 +237,8 @@
 
             <input type="file" id="fileInput" accept="image/*" style="display: none;">
             <div class="image-actions">
-                <button type="button" id="btnColarClipboard" class="btn-outline" style="flex: 1;">📋 Colar Print</button>
-                <button type="button" id="btnEscolherArquivo" class="btn-outline" style="flex: 1;">📁 Ficheiro</button>
+                <button type="button" id="btnColarClipboard" class="btn-outline" style="flex: 1;">?? Colar Print</button>
+                <button type="button" id="btnEscolherArquivo" class="btn-outline" style="flex: 1;">?? Ficheiro</button>
             </div>
         </div>
 
@@ -248,15 +249,15 @@
                 <span id="micStatus" style="font-size: 0.8rem; color: var(--muted);">Microfone desligado</span>
             </div>
             <div class="voice-controls">
-                <button type="button" id="btnFalar" class="btn-record">🎤 Ativar Microfone</button>
-                <button type="button" id="btnPausarVoz" class="btn-pause" disabled>⏸ Pausar</button>
-                <button type="button" id="btnLimparAcao" class="btn-outline" title="Limpar texto">🗑️</button>
+                <button type="button" id="btnFalar" class="btn-record">?? Ativar Microfone</button>
+                <button type="button" id="btnPararVoz" class="btn-stop" disabled>? Parar Escuta</button>
+                <button type="button" id="btnLimparAcao" class="btn-outline" title="Limpar texto">???</button>
             </div>
             <textarea id="acaoRealizada" rows="5" placeholder="Fale ou digite o procedimento realizado..."></textarea>
         </div>
     </div>
 
-    <button type="button" id="btnGerar" class="btn-primary">✨ Gerar Relatório Formal do Atendimento</button>
+    <button type="button" id="btnGerar" class="btn-primary">? Gerar Relatório Formal do Atendimento</button>
 
     <div id="statusBox"></div>
 
@@ -266,10 +267,10 @@
         </div>
         <textarea id="resultadoFinal" placeholder="O relatório formatado aparecerá aqui..."></textarea>
         <div class="export-bar">
-            <button type="button" id="btnCopiar" class="btn-record" style="background: var(--primary);">📋 Copiar Resposta</button>
-            <button type="button" id="btnTxt" class="btn-outline">📄 Baixar .TXT</button>
-            <button type="button" id="btnDoc" class="btn-outline">📘 Baixar Word (.DOC)</button>
-            <button type="button" id="btnPdf" class="btn-outline">📕 Baixar .PDF</button>
+            <button type="button" id="btnCopiar" class="btn-record" style="background: var(--primary);">?? Copiar Resposta</button>
+            <button type="button" id="btnTxt" class="btn-outline">?? Baixar .TXT</button>
+            <button type="button" id="btnDoc" class="btn-outline">?? Baixar Word (.DOC)</button>
+            <button type="button" id="btnPdf" class="btn-outline">?? Baixar .PDF</button>
         </div>
     </div>
 </div>
@@ -285,7 +286,7 @@
     const btnRemoverImg = document.getElementById('btnRemoverImg');
     const textoClienteDireto = document.getElementById('textoClienteDireto');
     const btnFalar = document.getElementById('btnFalar');
-    const btnPausarVoz = document.getElementById('btnPausarVoz');
+    const btnPararVoz = document.getElementById('btnPararVoz');
     const btnLimparAcao = document.getElementById('btnLimparAcao');
     const micStatus = document.getElementById('micStatus');
     const acaoRealizada = document.getElementById('acaoRealizada');
@@ -318,7 +319,7 @@
         previewImg.style.display = 'block';
         dropText.style.display = 'none';
         btnRemoverImg.style.display = 'inline-flex';
-        mostrarStatus('✅ Print carregado com sucesso!', 'success');
+        mostrarStatus('? Print carregado com sucesso!', 'success');
     }
 
     function carregarFicheiroImagem(file) {
@@ -399,12 +400,10 @@
         fileInput.value = '';
     });
 
-    // --- VOZ ---
+    // --- VOZ COM CONTROLE TOTAL (Ligar / Parar) ---
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition = null;
     let microfoneAtivo = false;
-    let escutaPausada = false;
-    let streamAudioMantido = null;
 
     if (SpeechRecognition) {
         recognition = new SpeechRecognition();
@@ -413,7 +412,6 @@
         recognition.interimResults = true;
 
         recognition.onresult = (event) => {
-            if (escutaPausada) return;
             let textoConfirmado = '';
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 if (event.results[i].isFinal) {
@@ -429,35 +427,27 @@
         recognition.onend = () => {
             if (microfoneAtivo) {
                 try { recognition.start(); } catch (e) {}
+            } else {
+                micStatus.innerText = 'Microfone desligado';
+                btnFalar.disabled = false;
+                btnPararVoz.disabled = true;
             }
         };
 
-        btnFalar.addEventListener('click', async () => {
-            try {
-                if (!streamAudioMantido && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                    streamAudioMantido = await navigator.mediaDevices.getUserMedia({ audio: true });
-                }
-            } catch (err) {}
-
-            if (!microfoneAtivo) {
-                microfoneAtivo = true;
-                escutaPausada = false;
-                try { recognition.start(); } catch (e) {}
-            } else {
-                escutaPausada = false;
-            }
-
+        btnFalar.addEventListener('click', () => {
+            microfoneAtivo = true;
+            try { recognition.start(); } catch (e) {}
             btnFalar.disabled = true;
-            btnPausarVoz.disabled = false;
-            micStatus.innerText = '🔴 Ouvindo...';
+            btnPararVoz.disabled = false;
+            micStatus.innerText = '?? Ouvindo... Pode falar!';
         });
 
-        btnPausarVoz.addEventListener('click', () => {
-            escutaPausada = true;
+        btnPararVoz.addEventListener('click', () => {
+            microfoneAtivo = false;
+            try { recognition.stop(); } catch (e) {}
             btnFalar.disabled = false;
-            btnFalar.innerText = '🎤 Retomar';
-            btnPausarVoz.disabled = true;
-            micStatus.innerText = '⏸ Pausado';
+            btnPararVoz.disabled = true;
+            micStatus.innerText = 'Microfone desligado';
         });
 
         btnLimparAcao.addEventListener('click', () => { acaoRealizada.value = ''; });
@@ -495,7 +485,7 @@
         return { cliente, mensagemCliente: mensagemUnida };
     }
 
-    // --- INTÉRPRETE INTELIGENTE DA SOLICITAÇÃO DO CLIENTE ---
+    // --- INTÉRPRETE DA SOLICITAÇÃO DO CLIENTE ---
     function interpretarSolicitacaoCliente(textoBruto) {
         if (!textoBruto || textoBruto.length < 5) {
             return 'Cliente entrou em contato solicitando suporte e verificação no sistema.';
@@ -522,7 +512,7 @@
         return `Cliente entrou em contato informando que ${limpo}`;
     }
 
-    // --- INTÉRPRETE PROFISSIONAL DE RESPOSTAS DO TÉCNICO (REESCRITA CORPORATIVA) ---
+    // --- INTÉRPRETE DE RESPOSTAS DO TÉCNICO ---
     function interpretarRespostaTecnica(texto) {
         if (!texto || texto.length < 3) {
             return 'O cliente foi orientado e o procedimento solicitado foi realizado com sucesso.';
@@ -538,7 +528,6 @@
         }
         let t = unicas.join(' ').toLowerCase();
 
-        // Mapeamentos diretos para as frases comuns de suporte
         if (t.includes('reinic') && (t.includes('servidor') || t.includes('computador') || t.includes('internet'))) {
             if (t.includes('resolveu') || t.includes('deu certo') || t.includes('normalizou')) {
                 return 'O cliente foi orientado a reiniciar o servidor, tendo realizado o procedimento e confirmado a normalização do atendimento na loja.';
@@ -555,7 +544,6 @@
             return 'O suporte realizou as verificações necessárias para analisar a situação relatada.';
         }
 
-        // Se for um texto livre, reconstrói com verbos impessoais profissionais
         let frase = unicas.join(' ');
         frase = frase
             .replace(/^informei\s+para\s+cliente\s+/i, 'O cliente foi orientado a ')
@@ -580,7 +568,7 @@
         const apiKey = apiKeyInput.value.trim();
 
         btnGerar.disabled = true;
-        btnGerar.innerText = '⏳ Processando e interpretando...';
+        btnGerar.innerText = '? Processando e interpretando...';
 
         try {
             if (apiKey) {
@@ -619,7 +607,7 @@ Sim. [Interprete a ação do técnico informada e reescreva em uma frase formal 
                     const textoIA = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
                     if (textoIA) {
                         resultadoFinal.value = textoIA.trim();
-                        mostrarStatus('✅ Relatório gerado com sucesso via IA!', 'success');
+                        mostrarStatus('? Relatório gerado com sucesso via IA!', 'success');
                         return;
                     }
                 }
@@ -632,72 +620,4 @@ Sim. [Interprete a ação do técnico informada e reescreva em uma frase formal 
                 mostrarStatus('Lendo o print...', 'loading');
                 const { data: { text } } = await Tesseract.recognize(imagemBase64, 'por', {
                     logger: m => {
-                        if (m.status === 'recognizing text') {
-                            mostrarStatus(`Lendo o print... ${Math.round(m.progress * 100)}%`, 'loading');
-                        }
-                    }
-                });
-                const limpo = limparSujeiraDoOCR(text);
-                clienteExtraido = limpo.cliente;
-                mensagemBruta = limpo.mensagemCliente;
-            }
-
-            const solicitacaoInterpretada = interpretarSolicitacaoCliente(mensagemBruta);
-            const respostaInterpretada = interpretarRespostaTecnica(acao);
-
-            resultadoFinal.value =
-`Qual nome do cliente atendido?
-${clienteExtraido}
-
-Qual a solicitação do cliente?
-${solicitacaoInterpretada}
-
-A solicitação foi atendida / resolvida?
-Sim. ${respostaInterpretada}`;
-
-            mostrarStatus('✅ Relatório interpretado e formatado com sucesso!', 'success');
-
-        } catch (erro) {
-            console.error(erro);
-            mostrarStatus('Erro ao processar: ' + erro.message, 'error');
-        } finally {
-            btnGerar.disabled = false;
-            btnGerar.innerText = '✨ Gerar Relatório Formal do Atendimento';
-        }
-    });
-
-    btnCopiar.addEventListener('click', () => {
-        navigator.clipboard.writeText(resultadoFinal.value);
-        mostrarStatus('Resposta copiada para a área de transferência!', 'success');
-    });
-
-    btnTxt.addEventListener('click', () => {
-        const blob = new Blob([resultadoFinal.value], { type: 'text/plain;charset=utf-8' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'relatorio_atendimento.txt';
-        a.click();
-    });
-
-    btnDoc.addEventListener('click', () => {
-        const html = `<html><head><meta charset="utf-8"></head><body style="font-family: Courier New, monospace; font-size: 11pt;">${resultadoFinal.value.replace(/\n/g, '<br>')}</body></html>`;
-        const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'relatorio_atendimento.doc';
-        a.click();
-    });
-
-    btnPdf.addEventListener('click', () => {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-        const linhas = doc.splitTextToSize(resultadoFinal.value || 'Sem conteúdo.', 180);
-        doc.setFont('courier', 'normal');
-        doc.setFontSize(11);
-        doc.text(linhas, 15, 20);
-        doc.save('relatorio_atendimento.pdf');
-    });
-</script>
-
-</body>
-</html>
+                        if (m.status === '
