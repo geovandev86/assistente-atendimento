@@ -620,4 +620,72 @@ Sim. [Interprete a ação do técnico informada e reescreva em uma frase formal 
                 mostrarStatus('Lendo o print...', 'loading');
                 const { data: { text } } = await Tesseract.recognize(imagemBase64, 'por', {
                     logger: m => {
-                        if (m.status === '
+                        if (m.status === 'recognizing text') {
+                            mostrarStatus(`Lendo o print... ${Math.round(m.progress * 100)}%`, 'loading');
+                        }
+                    }
+                });
+                const limpo = limparSujeiraDoOCR(text);
+                clienteExtraido = limpo.cliente;
+                mensagemBruta = limpo.mensagemCliente;
+            }
+
+            const solicitacaoInterpretada = interpretarSolicitacaoCliente(mensagemBruta);
+            const respostaInterpretada = interpretarRespostaTecnica(acao);
+
+            resultadoFinal.value =
+`Qual nome do cliente atendido?
+${clienteExtraido}
+
+Qual a solicitação do cliente?
+${solicitacaoInterpretada}
+
+A solicitação foi atendida / resolvida?
+Sim. ${respostaInterpretada}`;
+
+            mostrarStatus('? Relatório interpretado e formatado com sucesso!', 'success');
+
+        } catch (erro) {
+            console.error(erro);
+            mostrarStatus('Erro ao processar: ' + erro.message, 'error');
+        } finally {
+            btnGerar.disabled = false;
+            btnGerar.innerText = '? Gerar Relatório Formal do Atendimento';
+        }
+    });
+
+    btnCopiar.addEventListener('click', () => {
+        navigator.clipboard.writeText(resultadoFinal.value);
+        mostrarStatus('Resposta copiada para a área de transferência!', 'success');
+    });
+
+    btnTxt.addEventListener('click', () => {
+        const blob = new Blob([resultadoFinal.value], { type: 'text/plain;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'relatorio_atendimento.txt';
+        a.click();
+    });
+
+    btnDoc.addEventListener('click', () => {
+        const html = `<html><head><meta charset="utf-8"></head><body style="font-family: Courier New, monospace; font-size: 11pt;">${resultadoFinal.value.replace(/\n/g, '<br>')}</body></html>`;
+        const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'relatorio_atendimento.doc';
+        a.click();
+    });
+
+    btnPdf.addEventListener('click', () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+        const linhas = doc.splitTextToSize(resultadoFinal.value || 'Sem conteúdo.', 180);
+        doc.setFont('courier', 'normal');
+        doc.setFontSize(11);
+        doc.text(linhas, 15, 20);
+        doc.save('relatorio_atendimento.pdf');
+    });
+</script>
+
+</body>
+</html>
