@@ -522,31 +522,45 @@
         return `Cliente entrou em contato informando que ${limpo}`;
     }
 
-    // --- INTÉRPRETE INTELIGENTE DA RESPOSTA DO TÉCNICO ---
+    // --- INTÉRPRETE INTELIGENTE E PROFISSIONAL DA RESPOSTA DO TÉCNICO ---
     function interpretarRespostaTecnica(texto) {
         if (!texto || texto.length < 3) {
             return 'O cliente foi orientado e o procedimento solicitado foi realizado com sucesso.';
         }
 
-        let t = texto.trim().toLowerCase();
+        // Limpa repetições repetidas da fala (ex: "orientei orientei a cliente" vira "orientei a cliente")
+        let limpoTexto = texto.trim();
+        const palavras = limpoTexto.split(/\s+/);
+        const unicas = [];
+        for (let i = 0; i < palavras.length; i++) {
+            if (i === 0 || palavras[i].toLowerCase() !== palavras[i - 1].toLowerCase()) {
+                unicas.push(palavras[i]);
+            }
+        }
+        let t = unicas.join(' ').toLowerCase();
 
-        if (t.includes('reinic') && (t.includes('computador') || t.includes('internet'))) {
-            return 'O cliente foi orientado a reiniciar o computador e a conexão com a internet. Foi esclarecido que, caso o erro persista e o sistema continue sem passar a venda, trata-se de instabilidade temporária no formato popular.';
+        // Mapeamentos inteligentes baseados no que você costuma falar
+        if (t.includes('reinic') && (t.includes('servidor') || t.includes('computador') || t.includes('internet'))) {
+            return 'O cliente foi orientado a reiniciar o servidor e verificado que o procedimento normalizou a situação com sucesso.';
         }
         if (t.includes('instala') && t.includes('sistema')) {
             return 'Foi realizado acesso remoto e efetuada a instalação do sistema no computador do cliente, conforme solicitado.';
         }
+        if (t.includes('deu certo') || t.includes('normalizou') || t.includes('funcionando')) {
+            return 'O procedimento indicado foi realizado e o sistema normalizou o funcionamento conforme confirmado pelo cliente.';
+        }
         if (t.includes('verificar') || t.includes('checar')) {
-            return 'O suporte realizou as verificações necessárias para analisar a situação relatada pelo cliente.';
+            return 'O suporte realizou as verificações necessárias para analisar a situação relatada.';
         }
 
-        let frase = texto.trim();
+        // Remove verbos imperativos diretos do técnico e transforma em terceira pessoa formal
+        let frase = unicas.join(' ');
         frase = frase
-            .replace(/^faça\s+/i, 'Foi orientado a fazer ')
+            .replace(/^orientei\s+(a|o)\s+cliente\s+a\s+/i, 'O cliente foi orientado a ')
+            .replace(/^orientei\s+/i, 'O cliente foi orientado a ')
+            .replace(/^fiz\s+/i, 'Foi realizado o procedimento de ')
             .replace(/^reinicie\s+/i, 'O cliente foi orientado a reiniciar ')
-            .replace(/^verifique\s+/i, 'Foi verificado ')
-            .replace(/^orientei\s+o\s+cliente\s+a\s+/i, 'O cliente foi orientado a ')
-            .replace(/^orientei\s+/i, 'O cliente foi orientado a ');
+            .replace(/^verifique\s+/i, 'Foi verificado ');
 
         frase = frase.charAt(0).toUpperCase() + frase.slice(1);
         if (!/[.!?]$/.test(frase)) frase += '.';
@@ -577,7 +591,7 @@ Qual a solicitação do cliente?
 [Interprete a mensagem do cliente de forma profissional e objetiva em 3ª pessoa formal, removendo cumprimentos e gírias]
 
 A solicitação foi atendida / resolvida?
-Sim. [Interprete a ação do técnico informada e reescreva em uma frase formal e profissional de suporte].`
+Sim. [Interprete a ação do técnico informada e reescreva em uma frase formal e profissional de suporte em 3ª pessoa].`
                 }];
 
                 if (imagemBase64) {
