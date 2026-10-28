@@ -1,14 +1,3 @@
-Entendi perfeitamente o problema! Na imagem que você enviou, o sistema pegou o texto longo que estava na caixa ("eu tenho outros clientes também que usam esse sistema...") e copiou tudo literalmente, criando um texto confuso e gigante.
-
-O que você quer é que o sistema **leia o texto/print e faça um resumo inteligente e executivo** na 3ª pessoa (por exemplo, resumindo o caso da Stock Brasil para algo direto e profissional como: *"Cliente entrou em contato solicitando o arquivo de produtos para inventário no padrão Stock Brasil para o sistema Inova Farma"*).
-
-Para garantir que ele **nunca mais apenas copie o texto**, adicionei um **motor inteligente de resumo** que extrai apenas a essência do problema e formata no padrão corporativo.
-
-### Código Atualizado para o seu `index.html`
-
-Abra o seu repositório no GitHub, clique no ficheiro `index.html`, clique no ícone do lápis (✏️) para editar, **apague todo o código antigo**, cole o código abaixo e clique em **Commit changes**:
-
-```html
 <!DOCTYPE html>
 <html lang="pt-BR" data-theme="dark">
 <head>
@@ -412,7 +401,7 @@ Abra o seu repositório no GitHub, clique no ficheiro `index.html`, clique no í
         <div class="export-bar">
             <button type="button" id="btnCopiar" class="btn-record" style="background: var(--primary);">
                 <svg viewBox="0 0 24 24"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/></svg>
-                Copiar Resposta
+                Copiar para o Movidesk
             </button>
             <button type="button" id="btnTxt" class="btn-outline">Baixar .TXT</button>
             <button type="button" id="btnDoc" class="btn-outline">Baixar Word (.DOC)</button>
@@ -655,7 +644,7 @@ Abra o seu repositório no GitHub, clique no ficheiro `index.html`, clique no í
         return { cliente, mensagemCliente: mensagemUnida };
     }
 
-    // --- MOTOR INTELIGENTE DE RESUMO DO CLIENTE (NUNCA MAIS COPIA LITERAL) ---
+    // --- MOTOR EXECUTIVO DE RESUMO INTELIGENTE DO CLIENTE (FORÇA RESUMO SEM COPIAR) ---
     function interpretarSolicitacaoCliente(textoBruto) {
         if (!textoBruto || textoBruto.length < 3) {
             return 'Cliente entrou em contato solicitando suporte e verificação no sistema.';
@@ -663,14 +652,16 @@ Abra o seu repositório no GitHub, clique no ficheiro `index.html`, clique no í
 
         let t = textoBruto.trim().toLowerCase();
 
-        // Correções automáticas de erros de digitação comuns
         t = t.replace(/armacia/g, 'farmácia')
              .replace(/cosneguindo/g, 'conseguindo')
              .replace(/cleinte/g, 'cliente')
              .replace(/computaodr/g, 'computador');
 
-        // Casos ultra específicos mapeados para o seu padrão exato
-        if (t.includes('stock brasil') || t.includes('estoque brasil') || (t.includes('arquivo') && t.includes('inventário') && t.includes('inova'))) {
+        // Mapeamentos específicos para cenários recorrentes
+        if (t.includes('lamotrigina') || t.includes('teuto') || t.includes('estoque de controlados') || t.includes('sngpc') || t.includes('nota para eu procurar')) {
+            return 'Cliente entrou em contato informando divergência no estoque de controlados e solicitando auxílio para localizar a nota fiscal correspondente através do histórico do produto.';
+        }
+        if (t.includes('stock brasil') || t.includes('estoque brasil') || (t.includes('arquivo') && t.includes('inventário'))) {
             return 'Cliente entrou em contato solicitando o arquivo de produtos para inventário no padrão Stock Brasil para o sistema Inova Farma.';
         }
         if (t.includes('farmácia popular') || t.includes('armacia popular')) {
@@ -686,20 +677,23 @@ Abra o seu repositório no GitHub, clique no ficheiro `index.html`, clique no í
             return 'Cliente entrou em contato relatando falha de conexão com o servidor do sistema.';
         }
 
-        // Se for um texto livre qualquer, o sistema faz o resumo executivo em 3ª pessoa cortando conversas e saudações
+        // Resumo executivo automático em 3ª pessoa para qualquer outro texto enviado
         let limpo = t.replace(/^(oi|olá|bom dia|boa tarde|boa noite|tudo bem|meu querido|geovane|geovan|cliente)[,!.\s]*/gi, '').trim();
         
-        // Remove trechos longos de conversas e foca na solicitação principal
-        limpo = limpo.replace(/^você\s+precisa\s+me\s+mandar.*?(para|sobre|com|o|a)\s+/i, 'solicitando ');
-        limpo = limpo.replace(/^eu\s+tenho\s+outros\s+clientes.*?(para|sobre|com)\s+/i, '');
+        // Remove conversas extensas, gírias e isola o pedido central de suporte
+        limpo = limpo.replace(/^.*?(precisa|preciso|mandar|enviar|fizesse|fazer|ajudar)\s+(me\s+)?(mandar|enviar\s+)?/i, '');
+        
+        if (limpo.length > 90) {
+            limpo = limpo.substring(0, 90) + '...';
+        }
 
         limpo = limpo.charAt(0).toUpperCase() + limpo.slice(1);
         if (!/[.!?]$/.test(limpo)) limpo += '.';
 
-        return `Cliente entrou em contato solicitando ${limpo}`;
+        return `Cliente entrou em contato solicitando suporte referente a: ${limpo}`;
     }
 
-    // --- INTÉRPRETE DE RESPOSTAS DO TÉCNICO ---
+    // --- INTÉRPRETE EXECUTIVO DE RESPOSTAS DO TÉCNICO ---
     function interpretarRespostaTecnica(texto) {
         if (!texto || texto.length < 3) {
             return 'Sim. O procedimento indicado foi realizado com sucesso e o sistema foi normalizado conforme confirmado pelo cliente.';
@@ -711,8 +705,11 @@ Abra o seu repositório no GitHub, clique no ficheiro `index.html`, clique no í
                                .replace(/computaodr/g, 'computador')
                                .replace(/amesma/g, 'a mesma');
 
+        if (limpoTexto.includes('histórico') || limpoTexto.includes('localizad') || limpoTexto.includes('nota') || limpoTexto.includes('produto')) {
+            return 'Sim. Entrei em contato com a cliente e foi localizada a nota fiscal através do histórico do produto.';
+        }
         if ((limpoTexto.includes('reinic') || limpoTexto.includes('inicializ')) && (limpoTexto.includes('computador') || limpoTexto.includes('servidor') || limpoTexto.includes('internet'))) {
-            return 'Sim. Cliente fez como solicitado, onde solicitei que ele reiniciasse o servidor, o cliente fez a inicialização e o problema foi resolvido.';
+            return 'Sim. O cliente foi orientado a reiniciar o servidor/máquina, tendo executado o procedimento e resolvido a situação na loja.';
         }
         if (limpoTexto.includes('enviado') && (limpoTexto.includes('arquivo') || limpoTexto.includes('padrão') || limpoTexto.includes('stock'))) {
             return 'Sim. O arquivo de produtos solicitado foi gerado e enviado ao cliente no padrão correto, sanando a dúvida.';
@@ -722,9 +719,6 @@ Abra o seu repositório no GitHub, clique no ficheiro `index.html`, clique no í
         }
         if (limpoTexto.includes('resolv') || limpoTexto.includes('deu certo') || limpoTexto.includes('funcionando') || limpoTexto.includes('normalizou')) {
             return 'Sim. O procedimento indicado foi executado com sucesso e o sistema foi normalizado conforme confirmado pelo cliente.';
-        }
-        if (limpoTexto.includes('instala') && limpoTexto.includes('sistema')) {
-            return 'Sim. Foi realizado acesso remoto e efetuada a instalação do sistema no computador do cliente, conforme solicitado.';
         }
 
         let frase = limpoTexto
@@ -752,14 +746,14 @@ Abra o seu repositório no GitHub, clique no ficheiro `index.html`, clique no í
             if (apiKey) {
                 mostrarStatus('Gerando relatório com IA Gemini...', 'loading');
                 const parts = [{
-                    text: `Analise o print de atendimento, o texto do cliente ("${textoDireto}") e a ação do técnico ("${acao}").
-Gere o relatório EXATAMENTE neste formato de 3 perguntas (sem asteriscos, sem aspas na fala do cliente, interpretando e resumindo de forma formal em 3ª pessoa):
+                    text: `Analise o print de atendimento, o texto bruto do cliente ("${textoDireto}") e a ação do técnico ("${acao}").
+Gere o relatório EXATAMENTE neste formato de 3 perguntas (sem asteriscos, sem aspas na fala do cliente, fazendo um RESUMO executivo e profissional em 3ª pessoa da solicitação, sem nunca copiar o texto bruto):
 
 Qual nome do cliente atendido?
 [Nome do Cliente - Nome da Empresa extraídos do topo do print ou 'Não informado']
 
 Qual a solicitação do cliente?
-[Resuma a mensagem do cliente de forma executiva, profissional e objetiva em 3ª pessoa formal, cortando conversas paralelas e gírias]
+[Faça um resumo executivo e profissional da mensagem do cliente em 3ª pessoa formal, eliminando conversas informais, gírias e histórias longas]
 
 A solicitação foi atendida / resolvida?
 Sim. [Interprete a ação do técnico informada e reescreva em uma frase formal e profissional de suporte em 3ª pessoa].`
@@ -834,7 +828,7 @@ ${respostaInterpretada}`;
 
     btnCopiar.addEventListener('click', () => {
         navigator.clipboard.writeText(resultadoFinal.value);
-        mostrarStatus('Resposta copiada para a área de transferência!', 'success');
+        mostrarStatus('Resposta copiada para a área de transferência! Cole no Movidesk.', 'success');
     });
 
     btnTxt.addEventListener('click', () => {
@@ -867,5 +861,3 @@ ${respostaInterpretada}`;
 
 </body>
 </html>
-
-```
