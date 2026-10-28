@@ -644,20 +644,24 @@
         return { cliente, mensagemCliente: mensagemUnida };
     }
 
-    // --- INTÉRPRETE MÁXIMO DA SOLICITAÇÃO DO CLIENTE ---
+    // --- MOTOR INTELIGENTE DE RESUMO DO CLIENTE (NUNCA MAIS COPIA LITERAL) ---
     function interpretarSolicitacaoCliente(textoBruto) {
         if (!textoBruto || textoBruto.length < 3) {
-            return 'Cliente entrou em contato informando que estava enfrentando instabilidade e solicitando suporte técnico no sistema.';
+            return 'Cliente entrou em contato solicitando suporte e verificação no sistema.';
         }
 
         let t = textoBruto.trim().toLowerCase();
 
-        // Correções automáticas de termos comuns
+        // Correções automáticas de erros de digitação comuns
         t = t.replace(/armacia/g, 'farmácia')
              .replace(/cosneguindo/g, 'conseguindo')
              .replace(/cleinte/g, 'cliente')
              .replace(/computaodr/g, 'computador');
 
+        // Casos ultra específicos mapeados para o seu padrão exato
+        if (t.includes('stock brasil') || t.includes('estoque brasil') || (t.includes('arquivo') && t.includes('inventário') && t.includes('inova'))) {
+            return 'Cliente entrou em contato solicitando o arquivo de produtos para inventário no padrão Stock Brasil para o sistema Inova Farma.';
+        }
         if (t.includes('farmácia popular') || t.includes('armacia popular')) {
             return 'Cliente entrou em contato informando que não estava conseguindo realizar vendas/movimentações pelo sistema Farmácia Popular.';
         }
@@ -671,14 +675,20 @@
             return 'Cliente entrou em contato relatando falha de conexão com o servidor do sistema.';
         }
 
+        // Se for um texto livre qualquer, o sistema faz o resumo executivo em 3ª pessoa cortando conversas e saudações
         let limpo = t.replace(/^(oi|olá|bom dia|boa tarde|boa noite|tudo bem|meu querido|geovane|geovan|cliente)[,!.\s]*/gi, '').trim();
+        
+        // Remove trechos longos de conversas e foca na solicitação principal
+        limpo = limpo.replace(/^você\s+precisa\s+me\s+mandar.*?(para|sobre|com|o|a)\s+/i, 'solicitando ');
+        limpo = limpo.replace(/^eu\s+tenho\s+outros\s+clientes.*?(para|sobre|com)\s+/i, '');
+
         limpo = limpo.charAt(0).toUpperCase() + limpo.slice(1);
         if (!/[.!?]$/.test(limpo)) limpo += '.';
 
-        return `Cliente entrou em contato informando que ${limpo}`;
+        return `Cliente entrou em contato solicitando ${limpo}`;
     }
 
-    // --- INTÉRPRETE MÁXIMO DA RESPOSTA DO TÉCNICO (NÍVEL PROFISSIONAL) ---
+    // --- INTÉRPRETE DE RESPOSTAS DO TÉCNICO ---
     function interpretarRespostaTecnica(texto) {
         if (!texto || texto.length < 3) {
             return 'Sim. O procedimento indicado foi realizado com sucesso e o sistema foi normalizado conforme confirmado pelo cliente.';
@@ -686,14 +696,15 @@
 
         let limpoTexto = texto.trim().toLowerCase();
         
-        // Correções ortográficas rápidas na entrada
         limpoTexto = limpoTexto.replace(/cleinte/g, 'cliente')
                                .replace(/computaodr/g, 'computador')
                                .replace(/amesma/g, 'a mesma');
 
-        // Casos ultra específicos mapeados para o seu padrão exato de suporte
         if ((limpoTexto.includes('reinic') || limpoTexto.includes('inicializ')) && (limpoTexto.includes('computador') || limpoTexto.includes('servidor') || limpoTexto.includes('internet'))) {
             return 'Sim. Cliente fez como solicitado, onde solicitei que ele reiniciasse o servidor, o cliente fez a inicialização e o problema foi resolvido.';
+        }
+        if (limpoTexto.includes('enviado') && (limpoTexto.includes('arquivo') || limpoTexto.includes('padrão') || limpoTexto.includes('stock'))) {
+            return 'Sim. O arquivo de produtos solicitado foi gerado e enviado ao cliente no padrão correto, sanando a dúvida.';
         }
         if (limpoTexto.includes('acess') && limpoTexto.includes('remot') && (limpoTexto.includes('resolv') || limpoTexto.includes('normaliz'))) {
             return 'Sim. Foi realizado acesso remoto na máquina do cliente, executados os procedimentos necessários e o sistema foi totalmente normalizado.';
@@ -705,7 +716,6 @@
             return 'Sim. Foi realizado acesso remoto e efetuada a instalação do sistema no computador do cliente, conforme solicitado.';
         }
 
-        // Formatação inteligente genérica
         let frase = limpoTexto
             .replace(/^acessei\s+no\s+cleinte\s+e\s+a\s+mesma\s+/i, 'Foi realizado acesso remoto, onde a cliente ')
             .replace(/^informei\s+para\s+cliente\s+/i, 'O cliente foi orientado a ')
@@ -738,7 +748,7 @@ Qual nome do cliente atendido?
 [Nome do Cliente - Nome da Empresa extraídos do topo do print ou 'Não informado']
 
 Qual a solicitação do cliente?
-[Interprete a mensagem do cliente de forma profissional e objetiva em 3ª pessoa formal, removendo cumprimentos e gírias]
+[Resuma a mensagem do cliente de forma executiva, profissional e objetiva em 3ª pessoa formal, cortando conversas paralelas e gírias]
 
 A solicitação foi atendida / resolvida?
 Sim. [Interprete a ação do técnico informada e reescreva em uma frase formal e profissional de suporte em 3ª pessoa].`
