@@ -147,7 +147,6 @@
 
         button:disabled { opacity: 0.6; cursor: not-allowed; }
         .btn-record { background: var(--success); color: white; }
-        .btn-pause { background: var(--warning); color: white; }
         .btn-stop { background: var(--danger); color: white; }
         .btn-primary {
             background: var(--primary);
@@ -209,11 +208,11 @@
 <body>
 
 <div class="container">
-    <h1>??? Assistente de Atendimento Formal</h1>
+    <h1>Assistente de Atendimento Formal</h1>
     <p class="subtitle">Cole o print ou texto do cliente, informe o procedimento e gere o relatório automático.</p>
 
     <div class="api-box">
-        <span>?? <strong>Chave Gemini IA (Opcional):</strong> Se vazio, usa o Interpretador Automático local.</span>
+        <span>Chave Gemini IA (Opcional): Se vazio, usa o Interpretador Automático local.</span>
         <input type="password" id="apiKeyInput" placeholder="Opcional: Cole aqui sua Gemini API Key (AIza...)">
     </div>
 
@@ -222,7 +221,7 @@
         <div class="step-card">
             <div class="step-title">
                 <span>1. Print ou Texto do Cliente</span>
-                <button type="button" id="btnRemoverImg" class="btn-outline" style="padding: 4px 10px; font-size: 0.8rem; display: none;">? Remover Print</button>
+                <button type="button" id="btnRemoverImg" class="btn-outline" style="padding: 4px 10px; font-size: 0.8rem; display: none;">Remover Print</button>
             </div>
 
             <div class="paste-zone" id="pasteZone" tabindex="0" contenteditable="true" spellcheck="false">
@@ -237,8 +236,8 @@
 
             <input type="file" id="fileInput" accept="image/*" style="display: none;">
             <div class="image-actions">
-                <button type="button" id="btnColarClipboard" class="btn-outline" style="flex: 1;">?? Colar Print</button>
-                <button type="button" id="btnEscolherArquivo" class="btn-outline" style="flex: 1;">?? Ficheiro</button>
+                <button type="button" id="btnColarClipboard" class="btn-outline" style="flex: 1;">Colar Print</button>
+                <button type="button" id="btnEscolherArquivo" class="btn-outline" style="flex: 1;">Ficheiro</button>
             </div>
         </div>
 
@@ -249,15 +248,15 @@
                 <span id="micStatus" style="font-size: 0.8rem; color: var(--muted);">Microfone desligado</span>
             </div>
             <div class="voice-controls">
-                <button type="button" id="btnFalar" class="btn-record">?? Ativar Microfone</button>
-                <button type="button" id="btnPararVoz" class="btn-stop" disabled>? Parar Escuta</button>
+                <button type="button" id="btnFalar" class="btn-record">Ativar Microfone</button>
+                <button type="button" id="btnPararVoz" class="btn-stop" disabled>Parar Escuta</button>
                 <button type="button" id="btnLimparAcao" class="btn-outline" title="Limpar texto">???</button>
             </div>
             <textarea id="acaoRealizada" rows="5" placeholder="Fale ou digite o procedimento realizado..."></textarea>
         </div>
     </div>
 
-    <button type="button" id="btnGerar" class="btn-primary">? Gerar Relatório Formal do Atendimento</button>
+    <button type="button" id="btnGerar" class="btn-primary">Gerar Relatório Formal do Atendimento</button>
 
     <div id="statusBox"></div>
 
@@ -267,10 +266,10 @@
         </div>
         <textarea id="resultadoFinal" placeholder="O relatório formatado aparecerá aqui..."></textarea>
         <div class="export-bar">
-            <button type="button" id="btnCopiar" class="btn-record" style="background: var(--primary);">?? Copiar Resposta</button>
-            <button type="button" id="btnTxt" class="btn-outline">?? Baixar .TXT</button>
-            <button type="button" id="btnDoc" class="btn-outline">?? Baixar Word (.DOC)</button>
-            <button type="button" id="btnPdf" class="btn-outline">?? Baixar .PDF</button>
+            <button type="button" id="btnCopiar" class="btn-record" style="background: var(--primary);">Copiar Resposta</button>
+            <button type="button" id="btnTxt" class="btn-outline">Baixar .TXT</button>
+            <button type="button" id="btnDoc" class="btn-outline">Baixar Word (.DOC)</button>
+            <button type="button" id="btnPdf" class="btn-outline">Baixar .PDF</button>
         </div>
     </div>
 </div>
@@ -319,7 +318,7 @@
         previewImg.style.display = 'block';
         dropText.style.display = 'none';
         btnRemoverImg.style.display = 'inline-flex';
-        mostrarStatus('? Print carregado com sucesso!', 'success');
+        mostrarStatus('Print carregado com sucesso!', 'success');
     }
 
     function carregarFicheiroImagem(file) {
@@ -400,7 +399,7 @@
         fileInput.value = '';
     });
 
-    // --- VOZ COM CONTROLE TOTAL (Ligar / Parar) ---
+    // --- VOZ ---
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition = null;
     let microfoneAtivo = false;
@@ -439,7 +438,7 @@
             try { recognition.start(); } catch (e) {}
             btnFalar.disabled = true;
             btnPararVoz.disabled = false;
-            micStatus.innerText = '?? Ouvindo... Pode falar!';
+            micStatus.innerText = 'Ouvindo... Pode falar!';
         });
 
         btnPararVoz.addEventListener('click', () => {
@@ -568,7 +567,7 @@
         const apiKey = apiKeyInput.value.trim();
 
         btnGerar.disabled = true;
-        btnGerar.innerText = '? Processando e interpretando...';
+        btnGerar.innerText = 'Processando e interpretando...';
 
         try {
             if (apiKey) {
@@ -607,7 +606,7 @@ Sim. [Interprete a ação do técnico informada e reescreva em uma frase formal 
                     const textoIA = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
                     if (textoIA) {
                         resultadoFinal.value = textoIA.trim();
-                        mostrarStatus('? Relatório gerado com sucesso via IA!', 'success');
+                        mostrarStatus('Relatório gerado com sucesso via IA!', 'success');
                         return;
                     }
                 }
@@ -643,14 +642,14 @@ ${solicitacaoInterpretada}
 A solicitação foi atendida / resolvida?
 Sim. ${respostaInterpretada}`;
 
-            mostrarStatus('? Relatório interpretado e formatado com sucesso!', 'success');
+            mostrarStatus('Relatório interpretado e formatado com sucesso!', 'success');
 
         } catch (erro) {
             console.error(erro);
             mostrarStatus('Erro ao processar: ' + erro.message, 'error');
         } finally {
             btnGerar.disabled = false;
-            btnGerar.innerText = '? Gerar Relatório Formal do Atendimento';
+            btnGerar.innerText = 'Gerar Relatório Formal do Atendimento';
         }
     });
 
