@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -198,7 +198,6 @@
             flex-wrap: wrap;
         }
 
-        /* Alinhamento perfeito dos 3 botões na mesma linha no Passo 2 */
         .voice-controls {
             display: flex;
             gap: 8px;
@@ -323,7 +322,7 @@
             <p class="subtitle">Gere relatórios padronizados em 3ª pessoa com inteligência artificial, voz e prints.</p>
         </div>
         <button type="button" class="theme-toggle" id="btnThemeToggle">
-            🌙 Modo Escuro
+            ?? Modo Escuro
         </button>
     </header>
 
@@ -363,7 +362,7 @@
             </div>
         </div>
 
-        <!-- PASSO 2: Os 3 botões alinhados na mesma linha -->
+        <!-- PASSO 2 -->
         <div class="step-card">
             <div class="step-title">
                 <span>2. O que você fez ou orientou?</span>
@@ -412,11 +411,11 @@
 </div>
 
 <script>
-    // --- GESTÃO DE TEMA (CLARO / ESCURO) ---
+    // --- GESTÃO DE TEMA ---
     const btnThemeToggle = document.getElementById('btnThemeToggle');
     const htmlElement = document.documentElement;
 
-    const savedTheme = localStorage.getItem('app_theme') || 'light';
+    const savedTheme = localStorage.getItem('app_theme') || 'dark';
     htmlElement.setAttribute('data-theme', savedTheme);
     atualizarTextoBotaoTema(savedTheme);
 
@@ -430,9 +429,9 @@
 
     function atualizarTextoBotaoTema(theme) {
         if (theme === 'dark') {
-            btnThemeToggle.innerHTML = '☀️ Modo Claro';
+            btnThemeToggle.innerHTML = '?? Modo Claro';
         } else {
-            btnThemeToggle.innerHTML = '🌙 Modo Escuro';
+            btnThemeToggle.innerHTML = '?? Modo Escuro';
         }
     }
 
@@ -616,12 +615,12 @@
     // --- LIMPEZA DE RUÍDOS DO PRINT ---
     function limparSujeiraDoOCR(textoBruto) {
         let linhas = textoBruto.split('\n').map(l => l.trim()).filter(Boolean);
-        let cliente = 'Não identificado no print';
+        let cliente = 'Não informado (edite aqui)';
         let linhasLimpas = [];
 
         for (let i = 0; i < linhas.length; i++) {
             let l = linhas[i];
-            if (l.includes('|') && cliente === 'Não identificado no print') {
+            if (l.includes('|') && cliente.startsWith('Não informado')) {
                 cliente = l.replace(/^[^a-zA-ZÀ-ÿ]+/, '').replace(/\|/g, '-').replace(/\s+/g, ' ').trim();
                 continue;
             }
@@ -645,80 +644,78 @@
         return { cliente, mensagemCliente: mensagemUnida };
     }
 
-    // --- INTÉRPRETE DA SOLICITAÇÃO DO CLIENTE ---
+    // --- INTÉRPRETE MÁXIMO DA SOLICITAÇÃO DO CLIENTE ---
     function interpretarSolicitacaoCliente(textoBruto) {
-        if (!textoBruto || textoBruto.length < 5) {
-            return 'Cliente entrou em contato solicitando suporte e verificação no sistema.';
+        if (!textoBruto || textoBruto.length < 3) {
+            return 'Cliente entrou em contato informando que estava enfrentando instabilidade e solicitando suporte técnico no sistema.';
         }
 
         let t = textoBruto.trim().toLowerCase();
 
-        if (t.includes('farmácia popular') && (t.includes('servidor') || t.includes('conectar') || t.includes('fora do ar'))) {
-            return 'Cliente entrou em contato informando que está tentando realizar vendas pelo sistema Farmácia Popular, mas o sistema apresenta falha de conexão com o servidor, questionando se o serviço está fora do ar.';
+        // Correções automáticas de termos comuns
+        t = t.replace(/armacia/g, 'farmácia')
+             .replace(/cosneguindo/g, 'conseguindo')
+             .replace(/cleinte/g, 'cliente')
+             .replace(/computaodr/g, 'computador');
+
+        if (t.includes('farmácia popular') || t.includes('armacia popular')) {
+            return 'Cliente entrou em contato informando que não estava conseguindo realizar vendas/movimentações pelo sistema Farmácia Popular.';
         }
         if (t.includes('inova') && t.includes('integração')) {
-            return 'Cliente entrou em contato informando que o suporte do Farmácias APP relatou que a integração com o sistema Inova não foi realizada, solicitando verificação.';
+            return 'Cliente entrou em contato informando que a integração com o sistema Inova não foi realizada, solicitando verificação.';
         }
         if (t.includes('certificado') && t.includes('computador')) {
             return 'Cliente entrou em contato referente à instalação e verificação do certificado digital nos computadores.';
         }
+        if (t.includes('servidor') && (t.includes('conectar') || t.includes('fora'))) {
+            return 'Cliente entrou em contato relatando falha de conexão com o servidor do sistema.';
+        }
 
-        let limpo = textoBruto.trim();
-        limpo = limpo.replace(/^(oi|olá|bom dia|boa tarde|boa noite|tudo bem|meu querido|geovane|geovan|cliente)[,!.\s]*/gi, '');
-        limpo = limpo.trim();
-        limpo = limpo.charAt(0).toLowerCase() + limpo.slice(1);
+        let limpo = t.replace(/^(oi|olá|bom dia|boa tarde|boa noite|tudo bem|meu querido|geovane|geovan|cliente)[,!.\s]*/gi, '').trim();
+        limpo = limpo.charAt(0).toUpperCase() + limpo.slice(1);
         if (!/[.!?]$/.test(limpo)) limpo += '.';
 
         return `Cliente entrou em contato informando que ${limpo}`;
     }
 
-    // --- INTÉRPRETE DE RESPOSTAS DO TÉCNICO ---
+    // --- INTÉRPRETE MÁXIMO DA RESPOSTA DO TÉCNICO (NÍVEL PROFISSIONAL) ---
     function interpretarRespostaTecnica(texto) {
         if (!texto || texto.length < 3) {
-            return 'O cliente foi orientado e o procedimento solicitado foi realizado com sucesso.';
+            return 'Sim. O procedimento indicado foi realizado com sucesso e o sistema foi normalizado conforme confirmado pelo cliente.';
         }
 
-        let limpoTexto = texto.trim();
-        const palavras = limpoTexto.split(/\s+/);
-        const unicas = [];
-        for (let i = 0; i < palavras.length; i++) {
-            if (i === 0 || palavras[i].toLowerCase() !== palavras[i - 1].toLowerCase()) {
-                unicas.push(palavras[i]);
-            }
-        }
-        let t = unicas.join(' ').toLowerCase();
+        let limpoTexto = texto.trim().toLowerCase();
+        
+        // Correções ortográficas rápidas na entrada
+        limpoTexto = limpoTexto.replace(/cleinte/g, 'cliente')
+                               .replace(/computaodr/g, 'computador')
+                               .replace(/amesma/g, 'a mesma');
 
-        if (t.includes('reinic') && (t.includes('servidor') || t.includes('computador') || t.includes('internet'))) {
-            if (t.includes('resolveu') || t.includes('deu certo') || t.includes('normalizou')) {
-                return 'O cliente foi orientado a reiniciar o servidor, tendo realizado o procedimento e confirmado a normalização do atendimento na loja.';
-            }
-            return 'O cliente foi orientado a reiniciar o servidor e verificado que o procedimento normalizou a situação com sucesso.';
+        // Casos ultra específicos mapeados para o seu padrão exato de suporte
+        if ((limpoTexto.includes('reinic') || limpoTexto.includes('inicializ')) && (limpoTexto.includes('computador') || limpoTexto.includes('servidor') || limpoTexto.includes('internet'))) {
+            return 'Sim. Cliente fez como solicitado, onde solicitei que ele reiniciasse o servidor, o cliente fez a inicialização e o problema foi resolvido.';
         }
-        if (t.includes('resolveu') || t.includes('deu certo') || t.includes('funcionando') || t.includes('normalizou')) {
-            return 'O procedimento indicado foi realizado com sucesso e o sistema foi normalizado conforme confirmado pelo cliente.';
+        if (limpoTexto.includes('acess') && limpoTexto.includes('remot') && (limpoTexto.includes('resolv') || limpoTexto.includes('normaliz'))) {
+            return 'Sim. Foi realizado acesso remoto na máquina do cliente, executados os procedimentos necessários e o sistema foi totalmente normalizado.';
         }
-        if (t.includes('instala') && t.includes('sistema')) {
-            return 'Foi realizado acesso remoto e efetuada a instalação do sistema no computador do cliente, conforme solicitado.';
+        if (limpoTexto.includes('resolv') || limpoTexto.includes('deu certo') || limpoTexto.includes('funcionando') || limpoTexto.includes('normalizou')) {
+            return 'Sim. O procedimento indicado foi executado com sucesso e o sistema foi normalizado conforme confirmado pelo cliente.';
         }
-        if (t.includes('verificar') || t.includes('checar')) {
-            return 'O suporte realizou as verificações necessárias para analisar a situação relatada.';
+        if (limpoTexto.includes('instala') && limpoTexto.includes('sistema')) {
+            return 'Sim. Foi realizado acesso remoto e efetuada a instalação do sistema no computador do cliente, conforme solicitado.';
         }
 
-        let frase = unicas.join(' ');
-        frase = frase
+        // Formatação inteligente genérica
+        let frase = limpoTexto
+            .replace(/^acessei\s+no\s+cleinte\s+e\s+a\s+mesma\s+/i, 'Foi realizado acesso remoto, onde a cliente ')
             .replace(/^informei\s+para\s+cliente\s+/i, 'O cliente foi orientado a ')
-            .replace(/^informei\s+ao\s+cliente\s+que\s+/i, 'O cliente foi orientado a ')
-            .replace(/^informei\s+/i, 'O cliente foi orientado a ')
             .replace(/^orientei\s+(a|o)\s+cliente\s+a\s+/i, 'O cliente foi orientado a ')
-            .replace(/^orientei\s+/i, 'O cliente foi orientado a ')
-            .replace(/^fiz\s+/i, 'Foi realizado o procedimento de ')
-            .replace(/^reinicie\s+/i, 'O cliente foi orientado a reiniciar ')
-            .replace(/^verifique\s+/i, 'Foi verificado ');
+            .replace(/^fiz\s+/i, 'Foi realizado o procedimento de ');
 
         frase = frase.charAt(0).toUpperCase() + frase.slice(1);
         if (!/[.!?]$/.test(frase)) frase += '.';
 
-        return frase;
+        return `Sim. ${frase}`;
     }
 
     // --- BOTÃO PRINCIPAL ---
@@ -801,7 +798,7 @@ Qual a solicitação do cliente?
 ${solicitacaoInterpretada}
 
 A solicitação foi atendida / resolvida?
-Sim. ${respostaInterpretada}`;
+${respostaInterpretada}`;
 
             mostrarStatus('Relatório interpretado e formatado com sucesso!', 'success');
 
