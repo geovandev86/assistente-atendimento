@@ -8,21 +8,43 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #0ea5e9 0%, #1d4ed8 100%);
+            --bg-gradient: linear-gradient(135deg, #0284c7 0%, #1e3a8a 100%);
             --card-bg: #ffffff;
+            --card-border: #cbd5e1;
+            --text: #1e293b;
+            --muted: #64748b;
             --primary: #0284c7;
             --primary-hover: #0369a1;
             --success: #16a34a;
             --success-hover: #15803d;
             --danger: #dc2626;
             --danger-hover: #b91c1c;
-            --text: #1e293b;
-            --muted: #64748b;
-            --border: #cbd5e1;
+            --warning: #d97706;
+            --warning-hover: #b45309;
+            --inner-bg: #f8fafc;
+            --textarea-bg: #ffffff;
             --radius: 12px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        [data-theme="dark"] {
+            --bg-gradient: linear-gradient(135deg, #0f172a 100%, #1e293b 0%);
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --primary: #38bdf8;
+            --primary-hover: #0ea5e9;
+            --success: #22c55e;
+            --success-hover: #16a34a;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --warning: #f59e0b;
+            --warning-hover: #d97706;
+            --inner-bg: #0f172a;
+            --textarea-bg: #0f172a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: background 0.2s, color 0.2s, border 0.2s; }
 
         body {
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -39,21 +61,42 @@
             background: var(--card-bg);
             padding: 32px;
             border-radius: 18px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 1px solid var(--card-border);
         }
 
         header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
             margin-bottom: 24px;
-            border-bottom: 2px solid #e0f2fe;
+            border-bottom: 2px solid var(--card-border);
             padding-bottom: 16px;
+            gap: 16px;
         }
 
-        h1 { font-size: 1.6rem; font-weight: 700; color: #0369a1; display: flex; align-items: center; gap: 10px; }
-        .subtitle { color: var(--muted); font-size: 0.95rem; margin-top: 4px; }
+        h1 { font-size: 1.5rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+        .subtitle { color: var(--muted); font-size: 0.92rem; margin-top: 4px; }
+
+        .theme-toggle {
+            background: var(--inner-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text);
+            padding: 8px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .theme-toggle:hover { border-color: var(--primary); }
 
         .api-box {
-            background: #f0f9ff;
-            border: 1px solid #bae6fd;
+            background: var(--inner-bg);
+            border: 1px solid var(--card-border);
             padding: 14px 18px;
             border-radius: var(--radius);
             margin-bottom: 24px;
@@ -63,21 +106,20 @@
             flex-wrap: wrap;
             gap: 12px;
             font-size: 0.88rem;
-            color: #0369a1;
+            color: var(--muted);
         }
 
         .api-box input {
             flex: 1;
             min-width: 260px;
             padding: 9px 14px;
-            border: 1px solid #bae6fd;
+            border: 1px solid var(--card-border);
             border-radius: 6px;
             font-size: 0.9rem;
             outline: none;
-            background: #ffffff;
-            transition: border 0.2s;
+            background: var(--textarea-bg);
+            color: var(--text);
         }
-
         .api-box input:focus { border-color: var(--primary); }
 
         .grid-steps {
@@ -92,11 +134,10 @@
         }
 
         .step-card {
-            border: 1px solid var(--border);
+            border: 1px solid var(--card-border);
             border-radius: 14px;
             padding: 20px;
-            background: #f8fafc;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            background: var(--inner-bg);
             display: flex;
             flex-direction: column;
             gap: 14px;
@@ -112,11 +153,11 @@
         }
 
         .paste-zone {
-            border: 2px dashed #0284c7;
+            border: 2px dashed var(--primary);
             border-radius: 12px;
             padding: 20px;
             text-align: center;
-            background: #f0f9ff;
+            background: var(--textarea-bg);
             cursor: text;
             transition: all 0.2s;
             min-height: 130px;
@@ -127,12 +168,10 @@
             position: relative;
             outline: none;
         }
-
         .paste-zone:focus, .paste-zone.active-paste {
-            border-color: #0369a1;
-            background: #e0f2fe;
+            border-color: var(--success);
+            opacity: 0.95;
         }
-
         .paste-zone img {
             max-width: 100%;
             max-height: 140px;
@@ -140,10 +179,23 @@
             object-fit: contain;
         }
 
-        .image-actions, .voice-controls, .export-bar {
+        .image-actions, .export-bar {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+        }
+
+        /* Alinhamento dos 3 botões do Passo 2 na mesma linha */
+        .voice-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .voice-controls button {
+            flex: 1;
+            padding: 8px 10px;
+            font-size: 0.82rem;
+            white-space: nowrap;
         }
 
         button {
@@ -157,17 +209,19 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
         }
-
         button svg { width: 16px; height: 16px; fill: currentColor; }
-        button:disabled { opacity: 0.6; cursor: not-allowed; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .btn-record { background: var(--success); color: white; }
         .btn-record:hover:not(:disabled) { background: var(--success-hover); }
 
         .btn-stop { background: var(--danger); color: white; }
         .btn-stop:hover:not(:disabled) { background: var(--danger-hover); }
+
+        .btn-clear { background: var(--warning); color: white; }
+        .btn-clear:hover:not(:disabled) { background: var(--warning-hover); }
 
         .btn-primary {
             background: var(--primary);
@@ -181,25 +235,25 @@
         .btn-primary:hover:not(:disabled) { background: var(--primary-hover); }
 
         .btn-outline {
-            background: #fff;
+            background: var(--textarea-bg);
             color: var(--text);
-            border: 1px solid var(--border);
+            border: 1px solid var(--card-border);
         }
-        .btn-outline:hover { background: #f1f5f9; border-color: #94a3b8; }
+        .btn-outline:hover { background: var(--card-bg); border-color: var(--primary); }
 
         textarea {
             width: 100%;
             padding: 12px;
             border-radius: 8px;
-            border: 1px solid var(--border);
+            border: 1px solid var(--card-border);
             font-family: inherit;
             font-size: 0.95rem;
             resize: vertical;
             outline: none;
-            background: #ffffff;
+            background: var(--textarea-bg);
+            color: var(--text);
             transition: border 0.2s;
         }
-
         textarea:focus { border-color: var(--primary); }
 
         #statusBox {
@@ -210,16 +264,15 @@
             font-weight: 600;
             font-size: 0.92rem;
         }
-
         .status-loading { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
         .status-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
         .status-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
 
         .result-box {
-            border: 2px solid #bae6fd;
+            border: 2px solid var(--card-border);
             border-radius: 14px;
             padding: 24px;
-            background: #f0f9ff;
+            background: var(--inner-bg);
             box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
 
@@ -228,25 +281,30 @@
             font-size: 0.98rem;
             line-height: 1.6;
             height: 260px;
-            background: #ffffff;
+            background: var(--textarea-bg);
             margin-top: 12px;
             margin-bottom: 16px;
         }
     </style>
 </head>
-<body>
+<body data-theme="light">
 
 <div class="container">
     <header>
-        <h1>
-            <svg style="width:28px;height:28px;fill:var(--primary);" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12A10 10 0 0 0 12 22A10 10 0 0 0 22 12A10 10 0 0 0 12 2M12 4A8 8 0 0 1 20 12A8 8 0 0 1 12 20A8 8 0 0 1 4 12A8 8 0 0 1 12 4M12 6A6 6 0 0 0 6 12A6 6 0 0 0 12 18A6 6 0 0 0 18 12A6 6 0 0 0 12 6M12 8A4 4 0 0 1 16 12A4 4 0 0 1 12 16A4 4 0 0 1 8 12A4 4 0 0 1 12 8Z"/></svg>
-            Assistente de Atendimento
-        </h1>
-        <p class="subtitle">Gere relatórios padronizados em 3ª pessoa com inteligência artificial, reconhecimento de voz e leitura de prints.</p>
+        <div>
+            <h1>
+                <svg style="width:28px;height:28px;fill:var(--primary);" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12A10 10 0 0 0 12 22A10 10 0 0 0 22 12A10 10 0 0 0 12 2M12 4A8 8 0 0 1 20 12A8 8 0 0 1 12 20A8 8 0 0 1 4 12A8 8 0 0 1 12 4M12 6A6 6 0 0 0 6 12A6 6 0 0 0 12 18A6 6 0 0 0 18 12A6 6 0 0 0 12 6M12 8A4 4 0 0 1 16 12A4 4 0 0 1 12 16A4 4 0 0 1 8 12A4 4 0 0 1 12 8Z"/></svg>
+                Assistente de Atendimento
+            </h1>
+            <p class="subtitle">Gere relatórios padronizados em 3ª pessoa com inteligência artificial, voz e prints.</p>
+        </div>
+        <button type="button" class="theme-toggle" id="btnTema">
+            🌙 Modo Escuro
+        </button>
     </header>
 
     <div class="api-box">
-        <span><strong>Chave Gemini IA (Opcional):</strong> Se vazio, o sistema usa o Interpretador Inteligente Local.</span>
+        <span><strong>Chave Gemini IA (Opcional):</strong> Se vazio, o sistema usa o Interpretador Local.</span>
         <input type="password" id="apiKeyInput" placeholder="Opcional: Cole aqui sua Gemini API Key (AIza...)">
     </div>
 
@@ -255,14 +313,14 @@
         <div class="step-card">
             <div class="step-title">
                 <span>1. Print ou Texto do Cliente</span>
-                <button type="button" id="btnRemoverImg" class="btn-outline" style="padding: 4px 10px; font-size: 0.8rem; display: none;">Remover Print</button>
+                <button type="button" id="btnRemoverImg" class="btn-outline" style="padding: 2px 8px; font-size: 0.75rem; display: none;">Remover Print</button>
             </div>
 
             <div class="paste-zone" id="pasteZone" tabindex="0" contenteditable="true" spellcheck="false">
                 <div id="dropText" contenteditable="false" style="pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 6px;">
-                    <!-- Ícone visual explicativo de print de tela -->
-                    <svg style="width:36px;height:36px;fill:#0284c7;" viewBox="0 0 24 24"><path d="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M4,6V18H20V6H4M6,9H18V11H6V9M6,13H14V15H6V13Z"/></svg>
-                    <p style="font-size: 0.95rem; font-weight: 600; color: #0369a1;">Cole o Print aqui (Ctrl + V)</p>
+                    <!-- Ícone ilustrativo de print de tela -->
+                    <svg style="width:34px;height:34px;fill:var(--primary);" viewBox="0 0 24 24"><path d="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M4,6V18H20V6H4M6,9H18V11H6V9M6,13H14V15H6V13Z"/></svg>
+                    <p style="font-size: 0.92rem; font-weight: 600; color: var(--primary);">Cole o Print aqui (Ctrl + V)</p>
                 </div>
                 <img id="previewImg" contenteditable="false" style="display: none;" alt="Print">
             </div>
@@ -282,23 +340,24 @@
             </div>
         </div>
 
-        <!-- PASSO 2 -->
+        <!-- PASSO 2 (Os 3 botões na mesma linha) -->
         <div class="step-card">
             <div class="step-title">
                 <span>2. O que você fez ou orientou?</span>
-                <span id="micStatus" style="font-size: 0.8rem; color: var(--muted);">Microfone desligado</span>
+                <span id="micStatus" style="font-size: 0.78rem; color: var(--muted);">Desligado</span>
             </div>
             <div class="voice-controls">
-                <button type="button" id="btnFalar" class="btn-record">
+                <button type="button" id="btnFalar" class="btn-record" title="Ativar Microfone">
                     <svg viewBox="0 0 24 24"><path d="M12,2A3,3 0 0,1 15,5V11A3,3 0 0,1 12,14A3,3 0 0,1 9,11V5A3,3 0 0,1 12,2M19,11C19,14.53 16.39,17.44 13,17.93V21H11V17.93C7.61,17.44 5,14.53 5,11H7A5,5 0 0,0 12,16A5,5 0 0,0 17,11H19Z"/></svg>
-                    Ativar Microfone
+                    Ativar
                 </button>
-                <button type="button" id="btnPararVoz" class="btn-stop" disabled>
+                <button type="button" id="btnPararVoz" class="btn-stop" title="Parar Escuta" disabled>
                     <svg viewBox="0 0 24 24"><path d="M6,6H18V18H6V6Z"/></svg>
-                    Parar Escuta
+                    Parar
                 </button>
-                <button type="button" id="btnLimparAcao" class="btn-outline" title="Limpar texto">
+                <button type="button" id="btnLimparAcao" class="btn-clear" title="Apagar Texto">
                     <svg viewBox="0 0 24 24"><path d="M19,4H15.5L14,2.5H10L8.5,4H5C3.89,4 3,4.89 3,6H18V19C18,20.1 17.1,21 16,21H8C6.9,21 6,20.1 6,19V6H5V4H19V6Z"/></svg>
+                    Apagar
                 </button>
             </div>
             <textarea id="acaoRealizada" rows="5" placeholder="Fale ou digite o procedimento realizado..."></textarea>
@@ -319,427 +378,4 @@
         <textarea id="resultadoFinal" placeholder="O relatório formatado aparecerá aqui..."></textarea>
         <div class="export-bar">
             <button type="button" id="btnCopiar" class="btn-record" style="background: var(--primary);">
-                <svg viewBox="0 0 24 24"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/></svg>
-                Copiar Resposta
-            </button>
-            <button type="button" id="btnTxt" class="btn-outline">Baixar .TXT</button>
-            <button type="button" id="btnDoc" class="btn-outline">Baixar Word (.DOC)</button>
-            <button type="button" id="btnPdf" class="btn-outline">Baixar .PDF</button>
-        </div>
-    </div>
-</div>
-
-<script>
-    const apiKeyInput = document.getElementById('apiKeyInput');
-    const pasteZone = document.getElementById('pasteZone');
-    const fileInput = document.getElementById('fileInput');
-    const btnColarClipboard = document.getElementById('btnColarClipboard');
-    const btnEscolherArquivo = document.getElementById('btnEscolherArquivo');
-    const dropText = document.getElementById('dropText');
-    const previewImg = document.getElementById('previewImg');
-    const btnRemoverImg = document.getElementById('btnRemoverImg');
-    const textoClienteDireto = document.getElementById('textoClienteDireto');
-    const btnFalar = document.getElementById('btnFalar');
-    const btnPararVoz = document.getElementById('btnPararVoz');
-    const btnLimparAcao = document.getElementById('btnLimparAcao');
-    const micStatus = document.getElementById('micStatus');
-    const acaoRealizada = document.getElementById('acaoRealizada');
-    const btnGerar = document.getElementById('btnGerar');
-    const statusBox = document.getElementById('statusBox');
-    const resultadoFinal = document.getElementById('resultadoFinal');
-    const btnCopiar = document.getElementById('btnCopiar');
-    const btnTxt = document.getElementById('btnTxt');
-    const btnDoc = document.getElementById('btnDoc');
-    const btnPdf = document.getElementById('btnPdf');
-
-    let imagemBase64 = null;
-    let imagemMimeType = 'image/png';
-
-    apiKeyInput.value = localStorage.getItem('gemini_api_key_atendimento') || '';
-    apiKeyInput.addEventListener('input', () => {
-        localStorage.setItem('gemini_api_key_atendimento', apiKeyInput.value.trim());
-    });
-
-    function mostrarStatus(mensagem, tipo = 'loading') {
-        statusBox.style.display = 'block';
-        statusBox.className = 'status-' + tipo;
-        statusBox.innerText = mensagem;
-    }
-
-    function definirImagemBase64(dataUrl, mime = 'image/png') {
-        imagemBase64 = dataUrl;
-        imagemMimeType = mime;
-        previewImg.src = imagemBase64;
-        previewImg.style.display = 'block';
-        dropText.style.display = 'none';
-        btnRemoverImg.style.display = 'inline-flex';
-        mostrarStatus('Print carregado com sucesso!', 'success');
-    }
-
-    function carregarFicheiroImagem(file) {
-        if (!file || !file.type.startsWith('image/')) return false;
-        const reader = new FileReader();
-        reader.onload = (e) => definirImagemBase64(e.target.result, file.type);
-        reader.readAsDataURL(file);
-        return true;
-    }
-
-    pasteZone.addEventListener('keydown', (e) => {
-        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') return;
-        e.preventDefault();
-    });
-
-    document.addEventListener('paste', (e) => {
-        const clipboard = e.clipboardData || window.clipboardData;
-        if (!clipboard) return;
-
-        if (clipboard.files && clipboard.files.length > 0) {
-            for (let i = 0; i < clipboard.files.length; i++) {
-                if (clipboard.files[i].type.startsWith('image/')) {
-                    e.preventDefault();
-                    carregarFicheiroImagem(clipboard.files[i]);
-                    return;
-                }
-            }
-        }
-
-        if (clipboard.items && clipboard.items.length > 0) {
-            for (let i = 0; i < clipboard.items.length; i++) {
-                if (clipboard.items[i].type.startsWith('image/')) {
-                    e.preventDefault();
-                    carregarFicheiroImagem(clipboard.items[i].getAsFile());
-                    return;
-                }
-            }
-        }
-
-        setTimeout(() => {
-            const imgs = pasteZone.querySelectorAll('img:not(#previewImg)');
-            if (imgs.length > 0) {
-                const src = imgs[0].src;
-                imgs.forEach(img => img.remove());
-                if (src) definirImagemBase64(src);
-            }
-        }, 50);
-    });
-
-    btnColarClipboard.addEventListener('click', async () => {
-        try {
-            const items = await navigator.clipboard.read();
-            for (const item of items) {
-                const imageType = item.types.find(type => type.startsWith('image/'));
-                if (imageType) {
-                    const blob = await item.getType(imageType);
-                    carregarFicheiroImagem(blob);
-                    return;
-                }
-            }
-            mostrarStatus('Nenhuma imagem na área de transferência.', 'error');
-        } catch (err) {
-            pasteZone.focus();
-            mostrarStatus('Quadro selecionado! Aperte Ctrl + V.', 'loading');
-        }
-    });
-
-    btnEscolherArquivo.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', (e) => carregarFicheiroImagem(e.target.files[0]));
-
-    btnRemoverImg.addEventListener('click', (e) => {
-        e.stopPropagation();
-        imagemBase64 = null;
-        previewImg.src = '';
-        previewImg.style.display = 'none';
-        dropText.style.display = 'flex';
-        btnRemoverImg.style.display = 'none';
-        fileInput.value = '';
-    });
-
-    // --- VOZ ---
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    let recognition = null;
-    let microfoneAtivo = false;
-
-    if (SpeechRecognition) {
-        recognition = new SpeechRecognition();
-        recognition.lang = 'pt-BR';
-        recognition.continuous = true;
-        recognition.interimResults = true;
-
-        recognition.onresult = (event) => {
-            let textoConfirmado = '';
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                if (event.results[i].isFinal) {
-                    textoConfirmado += event.results[i][0].transcript.trim() + ' ';
-                }
-            }
-            if (textoConfirmado) {
-                const atual = acaoRealizada.value.trim();
-                acaoRealizada.value = (atual ? atual + ' ' : '') + textoConfirmado.trim();
-            }
-        };
-
-        recognition.onend = () => {
-            if (microfoneAtivo) {
-                try { recognition.start(); } catch (e) {}
-            } else {
-                micStatus.innerText = 'Microfone desligado';
-                btnFalar.disabled = false;
-                btnPararVoz.disabled = true;
-            }
-        };
-
-        btnFalar.addEventListener('click', () => {
-            microfoneAtivo = true;
-            try { recognition.start(); } catch (e) {}
-            btnFalar.disabled = true;
-            btnPararVoz.disabled = false;
-            micStatus.innerText = 'Ouvindo... Pode falar!';
-        });
-
-        btnPararVoz.addEventListener('click', () => {
-            microfoneAtivo = false;
-            try { recognition.stop(); } catch (e) {}
-            btnFalar.disabled = false;
-            btnPararVoz.disabled = true;
-            micStatus.innerText = 'Microfone desligado';
-        });
-
-        btnLimparAcao.addEventListener('click', () => { acaoRealizada.value = ''; });
-    }
-
-    // --- LIMPEZA DE RUÍDOS DO PRINT ---
-    function limparSujeiraDoOCR(textoBruto) {
-        let linhas = textoBruto.split('\n').map(l => l.trim()).filter(Boolean);
-        let cliente = 'Não identificado no print';
-        let linhasLimpas = [];
-
-        for (let i = 0; i < linhas.length; i++) {
-            let l = linhas[i];
-            if (l.includes('|') && cliente === 'Não identificado no print') {
-                cliente = l.replace(/^[^a-zA-ZÀ-ÿ]+/, '').replace(/\|/g, '-').replace(/\s+/g, ' ').trim();
-                continue;
-            }
-            if (/etiqueta|enqueta|protocol|original|\b1x\b|\b2x\b/i.test(l)) continue;
-            if (/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/.test(l)) continue;
-            if (/^\d+\s*kb\b/i.test(l)) continue;
-
-            if (/\d{2}:?\d{2}\s*\/\s*\d{2}:?\d{2}/.test(l)) {
-                l = l.replace(/^.*?\d{2}:?\d{2}\s*\/\s*\d{2}:?\d{2}\s*/, '').trim();
-            }
-            l = l.replace(/\d+[\.,]?\d*\s*KB\s*-?\s*\d{2}\/\d{2}\/\d{4}.*$/i, '').trim();
-            l = l.replace(/\d{2}\/\d{2}\/\d{4}\s*[-•]?\s*\d{2}:\d{2}(:\d{2})?.*$/i, '').trim();
-
-            const palavrasValidas = l.split(/\s+/).filter(p => /[a-zA-ZÀ-ÿ]{3,}/.test(p));
-            if (palavrasValidas.length < 2) continue;
-            linhasLimpas.push(l);
-        }
-
-        let mensagemUnida = linhasLimpas.join(' ').replace(/\s+/g, ' ').trim();
-        mensagemUnida = mensagemUnida.replace(/^.*?(enquetas|etiquetas|protocolo?|original|\d{4}\/\d{4})\s*[:\d\w\s\/]*?(?=(não|sim|oi|olá|bom|boa|ô|eu|o|a|então|preciso|tive)\b)/i, '').trim();
-        return { cliente, mensagemCliente: mensagemUnida };
-    }
-
-    // --- INTÉRPRETE DA SOLICITAÇÃO DO CLIENTE ---
-    function interpretarSolicitacaoCliente(textoBruto) {
-        if (!textoBruto || textoBruto.length < 5) {
-            return 'Cliente entrou em contato solicitando suporte e verificação no sistema.';
-        }
-
-        let t = textoBruto.trim().toLowerCase();
-
-        if (t.includes('farmácia popular') && (t.includes('servidor') || t.includes('conectar') || t.includes('fora do ar'))) {
-            return 'Cliente entrou em contato informando que está tentando realizar vendas pelo sistema Farmácia Popular, mas o sistema apresenta falha de conexão com o servidor, questionando se o serviço está fora do ar.';
-        }
-        if (t.includes('inova') && t.includes('integração')) {
-            return 'Cliente entrou em contato informando que o suporte do Farmácias APP relatou que a integração com o sistema Inova não foi realizada, solicitando verificação.';
-        }
-        if (t.includes('certificado') && t.includes('computador')) {
-            return 'Cliente entrou em contato referente à instalação e verificação do certificado digital nos computadores.';
-        }
-
-        let limpo = textoBruto.trim();
-        limpo = limpo.replace(/^(oi|olá|bom dia|boa tarde|boa noite|tudo bem|meu querido|geovane|geovan|cliente)[,!.\s]*/gi, '');
-        limpo = limpo.trim();
-        limpo = limpo.charAt(0).toLowerCase() + limpo.slice(1);
-        if (!/[.!?]$/.test(limpo)) limpo += '.';
-
-        return `Cliente entrou em contato informando que ${limpo}`;
-    }
-
-    // --- INTÉRPRETE DE RESPOSTAS DO TÉCNICO ---
-    function interpretarRespostaTecnica(texto) {
-        if (!texto || texto.length < 3) {
-            return 'O cliente foi orientado e o procedimento solicitado foi realizado com sucesso.';
-        }
-
-        let limpoTexto = texto.trim();
-        const palavras = limpoTexto.split(/\s+/);
-        const unicas = [];
-        for (let i = 0; i < palavras.length; i++) {
-            if (i === 0 || palavras[i].toLowerCase() !== palavras[i - 1].toLowerCase()) {
-                unicas.push(palavras[i]);
-            }
-        }
-        let t = unicas.join(' ').toLowerCase();
-
-        if (t.includes('reinic') && (t.includes('servidor') || t.includes('computador') || t.includes('internet'))) {
-            if (t.includes('resolveu') || t.includes('deu certo') || t.includes('normalizou')) {
-                return 'O cliente foi orientado a reiniciar o servidor, tendo realizado o procedimento e confirmado a normalização do atendimento na loja.';
-            }
-            return 'O cliente foi orientado a reiniciar o servidor e verificado que o procedimento normalizou a situação com sucesso.';
-        }
-        if (t.includes('resolveu') || t.includes('deu certo') || t.includes('funcionando') || t.includes('normalizou')) {
-            return 'O procedimento indicado foi realizado com sucesso e o sistema foi normalizado conforme confirmado pelo cliente.';
-        }
-        if (t.includes('instala') && t.includes('sistema')) {
-            return 'Foi realizado acesso remoto e efetuada a instalação do sistema no computador do cliente, conforme solicitado.';
-        }
-        if (t.includes('verificar') || t.includes('checar')) {
-            return 'O suporte realizou as verificações necessárias para analisar a situação relatada.';
-        }
-
-        let frase = unicas.join(' ');
-        frase = frase
-            .replace(/^informei\s+para\s+cliente\s+/i, 'O cliente foi orientado a ')
-            .replace(/^informei\s+ao\s+cliente\s+que\s+/i, 'O cliente foi orientado a ')
-            .replace(/^informei\s+/i, 'O cliente foi orientado a ')
-            .replace(/^orientei\s+(a|o)\s+cliente\s+a\s+/i, 'O cliente foi orientado a ')
-            .replace(/^orientei\s+/i, 'O cliente foi orientado a ')
-            .replace(/^fiz\s+/i, 'Foi realizado o procedimento de ')
-            .replace(/^reinicie\s+/i, 'O cliente foi orientado a reiniciar ')
-            .replace(/^verifique\s+/i, 'Foi verificado ');
-
-        frase = frase.charAt(0).toUpperCase() + frase.slice(1);
-        if (!/[.!?]$/.test(frase)) frase += '.';
-
-        return frase;
-    }
-
-    // --- BOTÃO PRINCIPAL ---
-    btnGerar.addEventListener('click', async () => {
-        const acao = acaoRealizada.value.trim();
-        const textoDireto = textoClienteDireto.value.trim();
-        const apiKey = apiKeyInput.value.trim();
-
-        btnGerar.disabled = true;
-        btnGerar.innerText = 'Processando e interpretando...';
-
-        try {
-            if (apiKey) {
-                mostrarStatus('Gerando relatório com IA Gemini...', 'loading');
-                const parts = [{
-                    text: `Analise o print de atendimento, o texto do cliente ("${textoDireto}") e a ação do técnico ("${acao}").
-Gere o relatório EXATAMENTE neste formato de 3 perguntas (sem asteriscos, sem aspas na fala do cliente, interpretando e resumindo de forma formal em 3ª pessoa):
-
-Qual nome do cliente atendido?
-[Nome do Cliente - Nome da Empresa extraídos do topo do print ou 'Não informado']
-
-Qual a solicitação do cliente?
-[Interprete a mensagem do cliente de forma profissional e objetiva em 3ª pessoa formal, removendo cumprimentos e gírias]
-
-A solicitação foi atendida / resolvida?
-Sim. [Interprete a ação do técnico informada e reescreva em uma frase formal e profissional de suporte em 3ª pessoa].`
-                }];
-
-                if (imagemBase64) {
-                    parts.push({
-                        inline_data: {
-                            mime_type: imagemMimeType,
-                            data: imagemBase64.split(',')[1]
-                        }
-                    });
-                }
-
-                const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts }] })
-                });
-
-                if (resp.ok) {
-                    const data = await resp.json();
-                    const textoIA = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-                    if (textoIA) {
-                        resultadoFinal.value = textoIA.trim();
-                        mostrarStatus('Relatório gerado com sucesso via IA!', 'success');
-                        return;
-                    }
-                }
-            }
-
-            let clienteExtraido = 'Não informado (edite aqui)';
-            let mensagemBruta = textoDireto;
-
-            if (imagemBase64 && !mensagemBruta) {
-                mostrarStatus('Lendo o print...', 'loading');
-                const { data: { text } } = await Tesseract.recognize(imagemBase64, 'por', {
-                    logger: m => {
-                        if (m.status === 'recognizing text') {
-                            mostrarStatus(`Lendo o print... ${Math.round(m.progress * 100)}%`, 'loading');
-                        }
-                    }
-                });
-                const limpo = limparSujeiraDoOCR(text);
-                clienteExtraido = limpo.cliente;
-                mensagemBruta = limpo.mensagemCliente;
-            }
-
-            const solicitacaoInterpretada = interpretarSolicitacaoCliente(mensagemBruta);
-            const respostaInterpretada = interpretarRespostaTecnica(acao);
-
-            resultadoFinal.value =
-`Qual nome do cliente atendido?
-${clienteExtraido}
-
-Qual a solicitação do cliente?
-${solicitacaoInterpretada}
-
-A solicitação foi atendida / resolvida?
-Sim. ${respostaInterpretada}`;
-
-            mostrarStatus('Relatório interpretado e formatado com sucesso!', 'success');
-
-        } catch (erro) {
-            console.error(erro);
-            mostrarStatus('Erro ao processar: ' + erro.message, 'error');
-        } finally {
-            btnGerar.disabled = false;
-            btnGerar.innerText = 'Gerar Relatório Formal do Atendimento';
-        }
-    });
-
-    btnCopiar.addEventListener('click', () => {
-        navigator.clipboard.writeText(resultadoFinal.value);
-        mostrarStatus('Resposta copiada para a área de transferência!', 'success');
-    });
-
-    btnTxt.addEventListener('click', () => {
-        const blob = new Blob([resultadoFinal.value], { type: 'text/plain;charset=utf-8' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'relatorio_atendimento.txt';
-        a.click();
-    });
-
-    btnDoc.addEventListener('click', () => {
-        const html = `<html><head><meta charset="utf-8"></head><body style="font-family: Courier New, monospace; font-size: 11pt;">${resultadoFinal.value.replace(/\n/g, '<br>')}</body></html>`;
-        const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'relatorio_atendimento.doc';
-        a.click();
-    });
-
-    btnPdf.addEventListener('click', () => {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-        const linhas = doc.splitTextToSize(resultadoFinal.value || 'Sem conteúdo.', 180);
-        doc.setFont('courier', 'normal');
-        doc.setFontSize(11);
-        doc.text(linhas, 15, 20);
-        doc.save('relatorio_atendimento.pdf');
-    });
-</script>
-
-</body>
-</html>
+                <svg viewBox="0 0 24 24"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,2
