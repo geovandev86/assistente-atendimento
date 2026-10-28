@@ -522,13 +522,12 @@
         return `Cliente entrou em contato informando que ${limpo}`;
     }
 
-    // --- INTÉRPRETE INTELIGENTE E PROFISSIONAL DA RESPOSTA DO TÉCNICO ---
+    // --- INTÉRPRETE PROFISSIONAL DE RESPOSTAS DO TÉCNICO (REESCRITA CORPORATIVA) ---
     function interpretarRespostaTecnica(texto) {
         if (!texto || texto.length < 3) {
             return 'O cliente foi orientado e o procedimento solicitado foi realizado com sucesso.';
         }
 
-        // Limpa repetições repetidas da fala (ex: "orientei orientei a cliente" vira "orientei a cliente")
         let limpoTexto = texto.trim();
         const palavras = limpoTexto.split(/\s+/);
         const unicas = [];
@@ -539,23 +538,29 @@
         }
         let t = unicas.join(' ').toLowerCase();
 
-        // Mapeamentos inteligentes baseados no que você costuma falar
+        // Mapeamentos diretos para as frases comuns de suporte
         if (t.includes('reinic') && (t.includes('servidor') || t.includes('computador') || t.includes('internet'))) {
+            if (t.includes('resolveu') || t.includes('deu certo') || t.includes('normalizou')) {
+                return 'O cliente foi orientado a reiniciar o servidor, tendo realizado o procedimento e confirmado a normalização do atendimento na loja.';
+            }
             return 'O cliente foi orientado a reiniciar o servidor e verificado que o procedimento normalizou a situação com sucesso.';
+        }
+        if (t.includes('resolveu') || t.includes('deu certo') || t.includes('funcionando') || t.includes('normalizou')) {
+            return 'O procedimento indicado foi realizado com sucesso e o sistema foi normalizado conforme confirmado pelo cliente.';
         }
         if (t.includes('instala') && t.includes('sistema')) {
             return 'Foi realizado acesso remoto e efetuada a instalação do sistema no computador do cliente, conforme solicitado.';
-        }
-        if (t.includes('deu certo') || t.includes('normalizou') || t.includes('funcionando')) {
-            return 'O procedimento indicado foi realizado e o sistema normalizou o funcionamento conforme confirmado pelo cliente.';
         }
         if (t.includes('verificar') || t.includes('checar')) {
             return 'O suporte realizou as verificações necessárias para analisar a situação relatada.';
         }
 
-        // Remove verbos imperativos diretos do técnico e transforma em terceira pessoa formal
+        // Se for um texto livre, reconstrói com verbos impessoais profissionais
         let frase = unicas.join(' ');
         frase = frase
+            .replace(/^informei\s+para\s+cliente\s+/i, 'O cliente foi orientado a ')
+            .replace(/^informei\s+ao\s+cliente\s+que\s+/i, 'O cliente foi orientado a ')
+            .replace(/^informei\s+/i, 'O cliente foi orientado a ')
             .replace(/^orientei\s+(a|o)\s+cliente\s+a\s+/i, 'O cliente foi orientado a ')
             .replace(/^orientei\s+/i, 'O cliente foi orientado a ')
             .replace(/^fiz\s+/i, 'Foi realizado o procedimento de ')
