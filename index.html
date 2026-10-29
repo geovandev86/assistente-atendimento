@@ -30,7 +30,7 @@
         }
 
         [data-theme="dark"] {
-            --bg-gradient: linear-gradient(135deg, #0f172a 1e%, #1e3a8a 100%);
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
             --card-bg: #1e293b;
             --text: #f1f5f9;
             --muted: #94a3b8;
@@ -119,7 +119,7 @@
 
         .api-box input {
             flex: 1;
-            min-width: 260px;
+            min-width: 280px;
             padding: 9px 14px;
             border: 1px solid var(--border);
             border-radius: 6px;
@@ -319,23 +319,23 @@
                 <svg style="width:28px;height:28px;fill:var(--primary);" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12A10 10 0 0 0 12 22A10 10 0 0 0 22 12A10 10 0 0 0 12 2M12 4A8 8 0 0 1 20 12A8 8 0 0 1 12 20A8 8 0 0 1 4 12A8 8 0 0 1 12 4M12 6A6 6 0 0 0 6 12A6 6 0 0 0 12 18A6 6 0 0 0 18 12A6 6 0 0 0 12 6M12 8A4 4 0 0 1 16 12A4 4 0 0 1 12 16A4 4 0 0 1 8 12A4 4 0 0 1 12 8Z"/></svg>
                 Assistente de Atendimento
             </h1>
-            <p class="subtitle">Gere relatórios padronizados em 3ª pessoa com inteligência artificial, voz e prints.</p>
+            <p class="subtitle">Gere resumos executivos estilo ChatGPT em 3ª pessoa a partir da conversa do cliente e da sua ação.</p>
         </div>
         <button type="button" class="theme-toggle" id="btnThemeToggle">
-            ?? Modo Escuro
+            🌙 Modo Escuro
         </button>
     </header>
 
     <div class="api-box">
-        <span><strong>Chave Gemini IA (Opcional):</strong> Se vazio, usa o Interpretador Inteligente Local.</span>
-        <input type="password" id="apiKeyInput" placeholder="Opcional: Cole aqui sua Gemini API Key (AIza...)">
+        <span><strong>IA Conectada (ChatGPT / Gemini):</strong> Se deixar vazio, usa o motor GPT Gratuito em Nuvem automaticamente.</span>
+        <input type="password" id="apiKeyInput" placeholder="Opcional: Chave OpenAI ChatGPT (sk-...) ou Gemini (AIza...)">
     </div>
 
     <div class="grid-steps">
         <!-- PASSO 1 -->
         <div class="step-card">
             <div class="step-title">
-                <span>1. Print ou Texto do Cliente</span>
+                <span>1. Print ou Conversa do Cliente</span>
                 <button type="button" id="btnRemoverImg" class="btn-outline" style="padding: 4px 10px; font-size: 0.8rem; display: none;">Remover Print</button>
             </div>
 
@@ -347,7 +347,7 @@
                 <img id="previewImg" contenteditable="false" style="display: none;" alt="Print">
             </div>
 
-            <textarea id="textoClienteDireto" rows="2" placeholder="Ou cole/digite aqui o texto copiado da mensagem do cliente..."></textarea>
+            <textarea id="textoClienteDireto" rows="4" placeholder="Cole aqui a mensagem/conversa exatamente do jeito que o cliente mandou..."></textarea>
 
             <input type="file" id="fileInput" accept="image/*" style="display: none;">
             <div class="image-actions">
@@ -382,13 +382,13 @@
                     Apagar
                 </button>
             </div>
-            <textarea id="acaoRealizada" rows="5" placeholder="Fale ou digite o procedimento realizado..."></textarea>
+            <textarea id="acaoRealizada" rows="6" placeholder="Fale ou digite como você resolveu (ex: acessei no cliente e fiz o ajuste na definição como solicitado)..."></textarea>
         </div>
     </div>
 
     <button type="button" id="btnGerar" class="btn-primary">
         <svg viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z"/></svg>
-        Gerar Relatório Formal do Atendimento
+        Gerar Relatório Formal do Atendimento (IA ChatGPT)
     </button>
 
     <div id="statusBox"></div>
@@ -397,7 +397,7 @@
         <div class="step-title">
             <span>3. Resposta Pronta (Padrão Formal em 3ª Pessoa)</span>
         </div>
-        <textarea id="resultadoFinal" placeholder="O relatório formatado aparecerá aqui..."></textarea>
+        <textarea id="resultadoFinal" placeholder="O relatório resumido pela IA aparecerá aqui..."></textarea>
         <div class="export-bar">
             <button type="button" id="btnCopiar" class="btn-record" style="background: var(--primary);">
                 <svg viewBox="0 0 24 24"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/></svg>
@@ -428,11 +428,7 @@
     });
 
     function atualizarTextoBotaoTema(theme) {
-        if (theme === 'dark') {
-            btnThemeToggle.innerHTML = '?? Modo Claro';
-        } else {
-            btnThemeToggle.innerHTML = '?? Modo Escuro';
-        }
+        btnThemeToggle.innerHTML = theme === 'dark' ? '☀️ Modo Claro' : '🌙 Modo Escuro';
     }
 
     const apiKeyInput = document.getElementById('apiKeyInput');
@@ -460,9 +456,9 @@
     let imagemBase64 = null;
     let imagemMimeType = 'image/png';
 
-    apiKeyInput.value = localStorage.getItem('gemini_api_key_atendimento') || '';
+    apiKeyInput.value = localStorage.getItem('ai_api_key_atendimento') || '';
     apiKeyInput.addEventListener('input', () => {
-        localStorage.setItem('gemini_api_key_atendimento', apiKeyInput.value.trim());
+        localStorage.setItem('ai_api_key_atendimento', apiKeyInput.value.trim());
     });
 
     function mostrarStatus(mensagem, tipo = 'loading') {
@@ -495,6 +491,9 @@
     });
 
     document.addEventListener('paste', (e) => {
+        if (document.activeElement === textoClienteDireto || document.activeElement === acaoRealizada || document.activeElement === apiKeyInput) {
+            return;
+        }
         const clipboard = e.clipboardData || window.clipboardData;
         if (!clipboard) return;
 
@@ -517,15 +516,6 @@
                 }
             }
         }
-
-        setTimeout(() => {
-            const imgs = pasteZone.querySelectorAll('img:not(#previewImg)');
-            if (imgs.length > 0) {
-                const src = imgs[0].src;
-                imgs.forEach(img => img.remove());
-                if (src) definirImagemBase64(src);
-            }
-        }, 50);
     });
 
     btnColarClipboard.addEventListener('click', async () => {
@@ -559,7 +549,7 @@
         fileInput.value = '';
     });
 
-    // --- VOZ ---
+    // --- RECONHECIMENTO DE VOZ ---
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     let recognition = null;
     let microfoneAtivo = false;
@@ -612,7 +602,7 @@
         btnLimparAcao.addEventListener('click', () => { acaoRealizada.value = ''; });
     }
 
-    // --- LIMPEZA DE RUÍDOS DO PRINT ---
+    // --- LIMPEZA DE RUÍDOS DO PRINT (OCR) ---
     function limparSujeiraDoOCR(textoBruto) {
         let linhas = textoBruto.split('\n').map(l => l.trim()).filter(Boolean);
         let cliente = 'Não informado (edite aqui)';
@@ -640,78 +630,164 @@
         }
 
         let mensagemUnida = linhasLimpas.join(' ').replace(/\s+/g, ' ').trim();
-        mensagemUnida = mensagemUnida.replace(/^.*?(enquetas|etiquetas|protocolo?|original|\d{4}\/\d{4})\s*[:\d\w\s\/]*?(?=(não|sim|oi|olá|bom|boa|ô|eu|o|a|então|preciso|tive)\b)/i, '').trim();
         return { cliente, mensagemCliente: mensagemUnida };
     }
 
-    // --- MOTOR INTELIGENTE DE RESUMO DO CLIENTE ---
-    function interpretarSolicitacaoCliente(textoBruto) {
-        if (!textoBruto || textoBruto.length < 3) {
-            return 'Cliente entrou em contato solicitando suporte técnico geral no sistema.';
-        }
+    // --- PROMPT TREINADO COM OS SEUS EXEMPLOS DO CHATGPT ---
+    function montarPromptSistema() {
+        return `Você é um assistente especialista em suporte técnico de sistemas para farmácias (InovaFarma / Movidesk).
+Sua tarefa é ler a mensagem bruta do cliente e a anotação do técnico e gerar um relatório formal, enxuto e executivo em 3ª pessoa, NUNCA copiando o texto de forma literal e NUNCA cortando frases com reticências.
 
-        let t = textoBruto.toLowerCase();
+EXEMPLO 1 DE COMO RESUMIR A SOLICITAÇÃO DO CLIENTE:
+Entrada do cliente: "Opa, bom dia, Giovan. Ontem eu liguei aí e pedi pra ajeitar a senha da Mara para colocar ela pra liberar a entrada, só que liberou e não sei se mexeu em alguma coisa, e as outras coisas que ela estava fazendo, ela não consegue mais, que nem liberar a venda no caixa. É tipo senha de gerente mesmo."
+Resumo esperado: "Cliente entrou em contato informando que, após solicitar a alteração da senha da colaboradora Mara para liberar a entrada de mercadorias, ela perdeu outras permissões, como a liberação de vendas no caixa. Solicita a revisão das permissões para restabelecer o acesso às funções de gerente."
 
-        if (t.includes('nota fiscal') && (t.includes('perda') || t.includes('resíduo') || t.includes('residuos'))) {
-            return 'Cliente entrou em contato solicitando orientação para emitir uma nota fiscal de perda de mercadorias, tendo como destinatária uma empresa de coleta e tratamento de resíduos.';
-        }
-        if (t.includes('lamotrigina') || t.includes('teuto') || t.includes('controlado') || t.includes('sngpc') || t.includes('estoque')) {
-            return 'Cliente entrou em contato informando divergência no inventário de medicamentos controlados e solicitando auxílio técnico para rastrear a nota fiscal correspondente.';
-        }
-        if (t.includes('stock brasil') || t.includes('estoque brasil') || (t.includes('arquivo') && t.includes('inventário'))) {
-            return 'Cliente entrou em contato solicitando a exportação do arquivo de produtos para inventário no formato padrão Stock Brasil.';
-        }
-        if (t.includes('farmácia popular') || t.includes('armacia popular')) {
-            return 'Cliente entrou em contato relatando intermitência e falha de comunicação ao processar vendas pelo sistema Farmácia Popular.';
-        }
-        if (t.includes('inova') && t.includes('integração')) {
-            return 'Cliente entrou em contato solicitando validação e suporte referente à integração com o sistema Inova.';
-        }
-        if (t.includes('certificado') && t.includes('computador')) {
-            return 'Cliente entrou em contato para suporte na validação e instalação de certificado digital na estação.';
-        }
-        if (t.includes('servidor') && (t.includes('conectar') || t.includes('fora'))) {
-            return 'Cliente entrou em contato informando indisponibilidade de conexão com o servidor principal.';
-        }
+EXEMPLO 2 DE COMO RESUMIR A SOLICITAÇÃO DO CLIENTE:
+Entrada do cliente: "Preciso de uma nota fiscal de perda com remetente para a empresa de resíduos"
+Resumo esperado: "Cliente entrou em contato solicitando orientação para emitir uma nota fiscal de perda de mercadorias, tendo como destinatária uma empresa de coleta e tratamento de resíduos."
 
-        let limpo = t.replace(/^(oi|olá|preciso|gostaria|quero|favor)[,!.\s]*/gi, '').trim();
-        if (limpo.length > 70) limpo = limpo.substring(0, 70) + '...';
-        limpo = limpo.charAt(0).toUpperCase() + limpo.slice(1);
+EXEMPLO DE COMO RESUMIR A AÇÃO DO TÉCNICO:
+Entrada do técnico: "acessei no cliente e fiz o ajuste na definicao como solicitado"
+Resumo esperado: "Sim. Foi realizado acesso remoto ao ambiente do cliente e efetuado o ajuste nas definições e permissões do sistema conforme solicitado, restabelecendo o funcionamento normal."
 
-        return `Cliente entrou em contato solicitando suporte referente a: ${limpo}`;
+Responda EXATAMENTE neste formato de 3 blocos (sem asteriscos, sem markdown, apenas texto limpo):
+
+Qual nome do cliente atendido?
+[Nome do Cliente ou 'Não informado (edite aqui)']
+
+Qual a solicitação do cliente?
+[Resumo executivo em 3ª pessoa começando com 'Cliente entrou em contato...']
+
+A solicitação foi atendida / resolvida?
+[Inicie com 'Sim.' (ou 'Parcial.' se ficou para outro dia) seguido do resumo formal em 3ª pessoa do que o técnico fez]`;
     }
 
-    // --- MOTOR INTELIGENTE DE RESUMO DA RESPOSTA TÉCNICA (TRATA PENDÊNCIAS E EXPEDIENTE) ---
-    function interpretarRespostaTecnica(texto) {
-        if (!texto || texto.length < 3) {
-            return 'Sim. O suporte executou as verificações necessárias e o sistema foi normalizado conforme validado com o cliente.';
+    // --- CHAMADA DE IA REAL (OPENAI CHATGPT / GEMINI / GPT GRATUITO AUTOMÁTICO) ---
+    async function gerarRelatorioComIA(clienteExtraido, mensagemCliente, acaoTecnico, apiKey) {
+        const systemPrompt = montarPromptSistema();
+        const userPrompt = `Nome identificado no print: "${clienteExtraido}"
+Mensagem/Conversa enviada pelo cliente: "${mensagemCliente || 'Não informada'}"
+O que o técnico fez ou orientou: "${acaoTecnico || 'Realizado procedimento padrão e resolvido'}"
+
+Gere o relatório formal seguindo rigorosamente o modelo.`;
+
+        // 1. Se o usuário colocou uma chave da OpenAI (ChatGPT: sk-...)
+        if (apiKey && apiKey.startsWith('sk-')) {
+            mostrarStatus('Gerando resumo executivo via API oficial do ChatGPT (OpenAI)...', 'loading');
+            const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'gpt-4o-mini',
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: userPrompt }
+                    ],
+                    temperature: 0.3
+                })
+            });
+            if (resp.ok) {
+                const data = await resp.json();
+                return data.choices?.[0]?.message?.content?.trim();
+            }
         }
 
-        let t = texto.toLowerCase();
+        // 2. Se o usuário colocou uma chave do Google Gemini (AIza...)
+        if (apiKey && apiKey.startsWith('AIza')) {
+            mostrarStatus('Gerando resumo executivo via IA Gemini...', 'loading');
+            const parts = [{ text: systemPrompt + "\n\n" + userPrompt }];
+            if (imagemBase64) {
+                parts.push({
+                    inline_data: {
+                        mime_type: imagemMimeType,
+                        data: imagemBase64.split(',')[1]
+                    }
+                });
+            }
+            const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts }] })
+            });
+            if (resp.ok) {
+                const data = await resp.json();
+                return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+            }
+        }
 
-        // Se informou encerramento de expediente ou continuação no dia seguinte
-        if (t.includes('expediente') || t.includes('amanhã') || t.includes('retornar') || t.includes('continuar') || t.includes('fechou')) {
-            return 'Parcial. O suporte iniciou os procedimentos de atendimento e validações com o cliente, porém o expediente foi encerrado, ficando combinado a continuação da tratativa no próximo dia útil.';
-        }
-        if (t.includes('histórico') || t.includes('localizad') || t.includes('nota') || t.includes('produto')) {
-            return 'Sim. Realizado atendimento com o cliente onde foi efetuado o rastreio e localizada a nota fiscal através do histórico do produto.';
-        }
-        if ((t.includes('reinic') || t.includes('inicializ')) && (t.includes('computador') || t.includes('servidor') || t.includes('internet'))) {
-            return 'Sim. O cliente foi orientado a efetuar a reinicialização dos equipamentos, procedimento executado que normalizou o atendimento.';
-        }
-        if (t.includes('enviado') && (t.includes('arquivo') || t.includes('padrão') || t.includes('stock'))) {
-            return 'Sim. O arquivo de inventário solicitado foi gerado e encaminhado ao cliente no padrão exigido.';
-        }
-        if (t.includes('acess') && t.includes('remot') && (t.includes('resolv') || t.includes('normaliz'))) {
-            return 'Sim. Efetuado acesso remoto na estação do cliente, aplicadas as correções e o sistema foi normalizado com sucesso.';
-        }
-        if (t.includes('resolv') || t.includes('deu certo') || t.includes('funcionando') || t.includes('normalizou')) {
-            return 'Sim. O procedimento técnico foi aplicado com sucesso, restabelecendo o perfeito funcionamento do sistema.';
+        // 3. IA ChatGPT Gratuita Automática (Funciona sem chave!)
+        mostrarStatus('Resumindo conversa com IA GPT em nuvem...', 'loading');
+        const respFree = await fetch('https://text.pollinations.ai/openai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: 'openai',
+                messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: userPrompt }
+                ],
+                temperature: 0.3
+            })
+        });
+
+        if (respFree.ok) {
+            const dataFree = await respFree.json();
+            const reply = dataFree.choices?.[0]?.message?.content?.trim();
+            if (reply) return reply;
         }
 
-        let frase = t.charAt(0).toUpperCase() + t.slice(1);
-        if (!/[.!?]$/.test(frase)) frase += '.';
-        return `Sim. ${frase}`;
+        throw new Error('Falha na comunicação com o servidor de IA.');
+    }
+
+    // --- FALLBACK LOCAL INTELIGENTE (CASO ESTEJA SEM INTERNET, SEM CORTAR TEXTO) ---
+    function fallbackLocalSemCortar(clienteExtraido, textoBrutoCliente, acaoTecnico) {
+        let solicitacao = textoBrutoCliente.trim();
+
+        // Se o usuário já colou o resumo pronto do ChatGPT, mantém intacto sem duplicar nem cortar!
+        if (/^cliente\s+entrou\s+em\s+contato/i.test(solicitacao)) {
+            if (!/[.!?]$/.test(solicitacao)) solicitacao += '.';
+        } else if (!solicitacao) {
+            solicitacao = 'Cliente entrou em contato solicitando suporte técnico e verificação no sistema.';
+        } else {
+            let limpo = solicitacao
+                .replace(/^(opa|oi|olá|bom dia|boa tarde|boa noite|tudo bem|giovan|geovan)[,!.\s]*/gi, '')
+                .trim();
+            limpo = limpo.charAt(0).toLowerCase() + limpo.slice(1);
+            if (!/[.!?]$/.test(limpo)) limpo += '.';
+            solicitacao = `Cliente entrou em contato informando que ${limpo}`;
+        }
+
+        let tAcao = acaoTecnico.trim();
+        let resposta = '';
+
+        if (!tAcao) {
+            resposta = 'Sim. Foi realizado o atendimento técnico e efetuados os ajustes solicitados, normalizando o sistema.';
+        } else if (/^sim\.|^parcial\./i.test(tAcao)) {
+            resposta = tAcao;
+        } else {
+            let r = tAcao
+                .replace(/definicao/gi, 'definição')
+                .replace(/configuracao/gi, 'configuração')
+                .replace(/permissao/gi, 'permissão')
+                .replace(/permissoes/gi, 'permissões')
+                .replace(/cleinte|cleitne/gi, 'cliente')
+                .replace(/historico/gi, 'histórico')
+                .replace(/^acessei\s+(no|o|a)\s+cliente\s+e\s+fiz\s+/i, 'Foi realizado acesso remoto ao ambiente do cliente e efetuado ')
+                .replace(/^acessei\s+(no|o|a)\s+cliente\s+e\s+/i, 'Foi realizado acesso remoto ao ambiente do cliente, onde ')
+                .replace(/^entrei\s+em\s+contato\s+com\s+(a|o)\s+cliente\s+e\s+/i, 'Foi realizado contato com o cliente, onde ')
+                .replace(/^fiz\s+/i, 'Foi efetuado ')
+                .replace(/^orientei\s+(a|o)?\s*cliente\s+a\s+/i, 'O cliente foi orientado a ')
+                .replace(/como\s+solicitado$/i, 'conforme solicitado, normalizando a operação');
+
+            r = r.charAt(0).toUpperCase() + r.slice(1);
+            if (!/[.!?]$/.test(r)) r += '.';
+            resposta = `Sim. ${r}`;
+        }
+
+        return `Qual nome do cliente atendido?\n${clienteExtraido}\n\nQual a solicitação do cliente?\n${solicitacao}\n\nA solicitação foi atendida / resolvida?\n${resposta}`;
     }
 
     // --- BOTÃO PRINCIPAL ---
@@ -721,56 +797,14 @@
         const apiKey = apiKeyInput.value.trim();
 
         btnGerar.disabled = true;
-        btnGerar.innerText = 'Processando e interpretando...';
+        btnGerar.innerText = 'Resumindo com Inteligência Artificial...';
+
+        let clienteExtraido = 'Não informado (edite aqui)';
+        let mensagemBruta = textoDireto;
 
         try {
-            if (apiKey) {
-                mostrarStatus('Gerando relatório com IA Gemini...', 'loading');
-                const parts = [{
-                    text: `Analise o print, o texto do cliente ("${textoDireto}") e a ação do técnico ("${acao}").
-Gere o relatório EXATAMENTE neste formato de 3 perguntas (sem asteriscos, interpretando a ação do técnico de forma executiva, respeitando se o caso foi resolvido ou se ficou pendente para o dia seguinte):
-
-Qual nome do cliente atendido?
-[Nome do Cliente - Nome da Empresa extraídos do topo do print ou 'Não informado']
-
-Qual a solicitação do cliente?
-[Escreva um resumo executivo profissional em 3ª pessoa formal, iniciando com 'Cliente entrou em contato solicitando...']
-
-A solicitação foi atendida / resolvida?
-[Se foi resolvido, inicie com 'Sim.' e resuma a ação. Se o expediente encerrou ou ficou para amanhã, inicie com 'Parcial.' e explique que continuará no próximo dia útil].`
-                }];
-
-                if (imagemBase64) {
-                    parts.push({
-                        inline_data: {
-                            mime_type: imagemMimeType,
-                            data: imagemBase64.split(',')[1]
-                        }
-                    });
-                }
-
-                const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ contents: [{ parts }] })
-                });
-
-                if (resp.ok) {
-                    const data = await resp.json();
-                    const textoIA = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-                    if (textoIA) {
-                        resultadoFinal.value = textoIA.trim();
-                        mostrarStatus('Relatório gerado com sucesso via IA!', 'success');
-                        return;
-                    }
-                }
-            }
-
-            let clienteExtraido = 'Não informado (edite aqui)';
-            let mensagemBruta = textoDireto;
-
             if (imagemBase64 && !mensagemBruta) {
-                mostrarStatus('Lendo o print...', 'loading');
+                mostrarStatus('Lendo texto do print (OCR)...', 'loading');
                 const { data: { text } } = await Tesseract.recognize(imagemBase64, 'por', {
                     logger: m => {
                         if (m.status === 'recognizing text') {
@@ -783,27 +817,17 @@ A solicitação foi atendida / resolvida?
                 mensagemBruta = limpo.mensagemCliente;
             }
 
-            const solicitacaoInterpretada = interpretarSolicitacaoCliente(mensagemBruta);
-            const respostaInterpretada = interpretarRespostaTecnica(acao);
-
-            resultadoFinal.value =
-`Qual nome do cliente atendido?
-${clienteExtraido}
-
-Qual a solicitação do cliente?
-${solicitacaoInterpretada}
-
-A solicitação foi atendida / resolvida?
-${respostaInterpretada}`;
-
-            mostrarStatus('Relatório interpretado e formatado com sucesso!', 'success');
+            const relatorioIA = await gerarRelatorioComIA(clienteExtraido, mensagemBruta, acao, apiKey);
+            resultadoFinal.value = relatorioIA.replace(/\*\*/g, '');
+            mostrarStatus('Resumo executivo gerado com sucesso pela IA!', 'success');
 
         } catch (erro) {
-            console.error(erro);
-            mostrarStatus('Erro ao processar: ' + erro.message, 'error');
+            console.warn('Usando reescrita local:', erro);
+            resultadoFinal.value = fallbackLocalSemCortar(clienteExtraido, mensagemBruta, acao);
+            mostrarStatus('Relatório formatado no modo local (sem corte de texto).', 'success');
         } finally {
             btnGerar.disabled = false;
-            btnGerar.innerText = 'Gerar Relatório Formal do Atendimento';
+            btnGerar.innerText = 'Gerar Relatório Formal do Atendimento (IA ChatGPT)';
         }
     });
 
