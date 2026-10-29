@@ -76,7 +76,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             border-bottom: 2px solid var(--border);
             padding-bottom: 16px;
             flex-wrap: wrap;
@@ -105,32 +105,67 @@
         .api-box {
             background: var(--api-bg);
             border: 1px solid var(--border);
-            padding: 14px 18px;
+            padding: 12px 16px;
             border-radius: var(--radius);
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 12px;
-            font-size: 0.88rem;
+            font-size: 0.85rem;
             color: var(--text);
         }
 
         .api-box input {
             flex: 1;
-            min-width: 280px;
-            padding: 9px 14px;
+            min-width: 260px;
+            padding: 8px 12px;
             border: 1px solid var(--border);
             border-radius: 6px;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
+            outline: none;
+            background: var(--input-bg);
+            color: var(--text);
+        }
+
+        .client-name-bar {
+            background: var(--api-bg);
+            border: 2px solid var(--primary);
+            padding: 14px 18px;
+            border-radius: var(--radius);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .client-name-bar label {
+            font-weight: 700;
+            font-size: 0.98rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .client-name-bar input {
+            flex: 1;
+            min-width: 240px;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
             outline: none;
             background: var(--input-bg);
             color: var(--text);
             transition: border 0.2s;
         }
 
-        .api-box input:focus { border-color: var(--primary); }
+        .client-name-bar input:focus { border-color: var(--primary); }
 
         .grid-steps {
             display: grid;
@@ -166,12 +201,12 @@
         .paste-zone {
             border: 2px dashed var(--primary);
             border-radius: 12px;
-            padding: 20px;
+            padding: 16px;
             text-align: center;
             background: var(--paste-bg);
             cursor: text;
             transition: all 0.2s;
-            min-height: 130px;
+            min-height: 115px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -187,7 +222,7 @@
 
         .paste-zone img {
             max-width: 100%;
-            max-height: 140px;
+            max-height: 130px;
             border-radius: 8px;
             object-fit: contain;
         }
@@ -302,7 +337,7 @@
             font-family: 'Courier New', Courier, monospace;
             font-size: 0.98rem;
             line-height: 1.6;
-            height: 260px;
+            height: 250px;
             background: var(--input-bg);
             color: var(--text);
             margin-top: 12px;
@@ -319,7 +354,7 @@
                 <svg style="width:28px;height:28px;fill:var(--primary);" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12A10 10 0 0 0 12 22A10 10 0 0 0 22 12A10 10 0 0 0 12 2M12 4A8 8 0 0 1 20 12A8 8 0 0 1 12 20A8 8 0 0 1 4 12A8 8 0 0 1 12 4M12 6A6 6 0 0 0 6 12A6 6 0 0 0 12 18A6 6 0 0 0 18 12A6 6 0 0 0 12 6M12 8A4 4 0 0 1 16 12A4 4 0 0 1 12 16A4 4 0 0 1 8 12A4 4 0 0 1 12 8Z"/></svg>
                 Assistente de Atendimento
             </h1>
-            <p class="subtitle">Gere resumos executivos estilo ChatGPT em 3ª pessoa a partir da conversa do cliente e da sua ação.</p>
+            <p class="subtitle">Gere resumos executivos estilo ChatGPT em 3ª pessoa de forma rápida.</p>
         </div>
         <button type="button" class="theme-toggle" id="btnThemeToggle">
             🌙 Modo Escuro
@@ -327,8 +362,18 @@
     </header>
 
     <div class="api-box">
-        <span><strong>IA Conectada (ChatGPT / Gemini):</strong> Se deixar vazio, usa o motor GPT Gratuito em Nuvem automaticamente.</span>
-        <input type="password" id="apiKeyInput" placeholder="Opcional: Chave OpenAI ChatGPT (sk-...) ou Gemini (AIza...)">
+        <span><strong>IA Turbo (ChatGPT / Gemini):</strong> Vazio = IA Gratuita Automática. (Para resposta em 1 segundo, cole uma chave Gemini gratuita).</span>
+        <input type="password" id="apiKeyInput" placeholder="Opcional: Chave OpenAI (sk-...) ou Gemini (AIza...)">
+    </div>
+
+    <!-- NOVO CAMPO: NOME DO CLIENTE -->
+    <div class="client-name-bar">
+        <label for="nomeClienteInput">
+            <svg style="width:20px;height:20px;fill:currentColor;" viewBox="0 0 24 24"><path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"/></svg>
+            Nome do Cliente / Farmácia:
+        </label>
+        <input type="text" id="nomeClienteInput" placeholder="Digite o nome do cliente (ex: Alexandre - Drogaria Mambai)...">
+        <button type="button" id="btnLimparCliente" class="btn-clear" style="padding: 9px 12px;" title="Limpar nome">Limpar</button>
     </div>
 
     <div class="grid-steps">
@@ -336,18 +381,19 @@
         <div class="step-card">
             <div class="step-title">
                 <span>1. Print ou Conversa do Cliente</span>
+                <span id="ocrStatus" style="font-size: 0.78rem; color: var(--primary); font-weight: 600;"></span>
                 <button type="button" id="btnRemoverImg" class="btn-outline" style="padding: 4px 10px; font-size: 0.8rem; display: none;">Remover Print</button>
             </div>
 
             <div class="paste-zone" id="pasteZone" tabindex="0" contenteditable="true" spellcheck="false">
                 <div id="dropText" contenteditable="false" style="pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 6px;">
-                    <svg style="width:36px;height:36px;fill:var(--primary);" viewBox="0 0 24 24"><path d="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M4,6V18H20V6H4M6,9H18V11H6V9M6,13H14V15H6V13Z"/></svg>
-                    <p style="font-size: 0.95rem; font-weight: 600; color: var(--primary);">Cole o Print aqui (Ctrl + V)</p>
+                    <svg style="width:34px;height:34px;fill:var(--primary);" viewBox="0 0 24 24"><path d="M4,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M4,6V18H20V6H4M6,9H18V11H6V9M6,13H14V15H6V13Z"/></svg>
+                    <p style="font-size: 0.92rem; font-weight: 600; color: var(--primary);">Cole o Print aqui (Ctrl + V)</p>
                 </div>
                 <img id="previewImg" contenteditable="false" style="display: none;" alt="Print">
             </div>
 
-            <textarea id="textoClienteDireto" rows="4" placeholder="Cole aqui a mensagem/conversa exatamente do jeito que o cliente mandou..."></textarea>
+            <textarea id="textoClienteDireto" rows="4" placeholder="Cole aqui a conversa do cliente (ou deixe o print acima preencher sozinho)..."></textarea>
 
             <input type="file" id="fileInput" accept="image/*" style="display: none;">
             <div class="image-actions">
@@ -388,7 +434,7 @@
 
     <button type="button" id="btnGerar" class="btn-primary">
         <svg viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z"/></svg>
-        Gerar Relatório Formal do Atendimento (IA ChatGPT)
+        ⚡ Gerar Relatório Rápido (IA ChatGPT)
     </button>
 
     <div id="statusBox"></div>
@@ -432,6 +478,8 @@
     }
 
     const apiKeyInput = document.getElementById('apiKeyInput');
+    const nomeClienteInput = document.getElementById('nomeClienteInput');
+    const btnLimparCliente = document.getElementById('btnLimparCliente');
     const pasteZone = document.getElementById('pasteZone');
     const fileInput = document.getElementById('fileInput');
     const btnColarClipboard = document.getElementById('btnColarClipboard');
@@ -439,6 +487,7 @@
     const dropText = document.getElementById('dropText');
     const previewImg = document.getElementById('previewImg');
     const btnRemoverImg = document.getElementById('btnRemoverImg');
+    const ocrStatus = document.getElementById('ocrStatus');
     const textoClienteDireto = document.getElementById('textoClienteDireto');
     const btnFalar = document.getElementById('btnFalar');
     const btnPararVoz = document.getElementById('btnPararVoz');
@@ -455,16 +504,43 @@
 
     let imagemBase64 = null;
     let imagemMimeType = 'image/png';
+    let promessaOCR = null;
+    let resultadoOCRCache = { cliente: '', mensagemCliente: '' };
 
     apiKeyInput.value = localStorage.getItem('ai_api_key_atendimento') || '';
     apiKeyInput.addEventListener('input', () => {
         localStorage.setItem('ai_api_key_atendimento', apiKeyInput.value.trim());
     });
 
+    btnLimparCliente.addEventListener('click', () => {
+        nomeClienteInput.value = '';
+        nomeClienteInput.focus();
+    });
+
     function mostrarStatus(mensagem, tipo = 'loading') {
         statusBox.style.display = 'block';
         statusBox.className = 'status-' + tipo;
         statusBox.innerText = mensagem;
+    }
+
+    // --- LEITURA DO PRINT EM SEGUNDO PLANO (ADIANTA O PROCESSO PARA NÃO DEMORAR) ---
+    async function processarOCRInstantaneo(dataUrl) {
+        ocrStatus.innerText = '⏳ Lendo print...';
+        try {
+            const { data: { text } } = await Tesseract.recognize(dataUrl, 'por');
+            const limpo = limparSujeiraDoOCR(text);
+            resultadoOCRCache = limpo;
+
+            if (limpo.cliente && !limpo.cliente.startsWith('Não informado') && !nomeClienteInput.value.trim()) {
+                nomeClienteInput.value = limpo.cliente;
+            }
+            if (limpo.mensagemCliente && !textoClienteDireto.value.trim()) {
+                textoClienteDireto.value = limpo.mensagemCliente;
+            }
+            ocrStatus.innerText = '✅ Print lido!';
+        } catch (e) {
+            ocrStatus.innerText = '';
+        }
     }
 
     function definirImagemBase64(dataUrl, mime = 'image/png') {
@@ -474,7 +550,8 @@
         previewImg.style.display = 'block';
         dropText.style.display = 'none';
         btnRemoverImg.style.display = 'inline-flex';
-        mostrarStatus('Print carregado com sucesso!', 'success');
+        mostrarStatus('Print colado! Extraindo texto automaticamente em segundo plano...', 'success');
+        promessaOCR = processarOCRInstantaneo(dataUrl);
     }
 
     function carregarFicheiroImagem(file) {
@@ -491,7 +568,8 @@
     });
 
     document.addEventListener('paste', (e) => {
-        if (document.activeElement === textoClienteDireto || document.activeElement === acaoRealizada || document.activeElement === apiKeyInput) {
+        const el = document.activeElement;
+        if (el === textoClienteDireto || el === acaoRealizada || el === apiKeyInput || el === nomeClienteInput) {
             return;
         }
         const clipboard = e.clipboardData || window.clipboardData;
@@ -542,10 +620,13 @@
     btnRemoverImg.addEventListener('click', (e) => {
         e.stopPropagation();
         imagemBase64 = null;
+        promessaOCR = null;
+        resultadoOCRCache = { cliente: '', mensagemCliente: '' };
         previewImg.src = '';
         previewImg.style.display = 'none';
         dropText.style.display = 'flex';
         btnRemoverImg.style.display = 'none';
+        ocrStatus.innerText = '';
         fileInput.value = '';
     });
 
@@ -605,12 +686,12 @@
     // --- LIMPEZA DE RUÍDOS DO PRINT (OCR) ---
     function limparSujeiraDoOCR(textoBruto) {
         let linhas = textoBruto.split('\n').map(l => l.trim()).filter(Boolean);
-        let cliente = 'Não informado (edite aqui)';
+        let cliente = '';
         let linhasLimpas = [];
 
         for (let i = 0; i < linhas.length; i++) {
             let l = linhas[i];
-            if (l.includes('|') && cliente.startsWith('Não informado')) {
+            if (l.includes('|') && !cliente) {
                 cliente = l.replace(/^[^a-zA-ZÀ-ÿ]+/, '').replace(/\|/g, '-').replace(/\s+/g, ' ').trim();
                 continue;
             }
@@ -633,47 +714,29 @@
         return { cliente, mensagemCliente: mensagemUnida };
     }
 
-    // --- PROMPT TREINADO COM OS SEUS EXEMPLOS DO CHATGPT ---
+    // --- PROMPT COMPACTO E OTIMIZADO PARA RESPOSTA ULTRA-RÁPIDA ---
     function montarPromptSistema() {
-        return `Você é um assistente especialista em suporte técnico de sistemas para farmácias (InovaFarma / Movidesk).
-Sua tarefa é ler a mensagem bruta do cliente e a anotação do técnico e gerar um relatório formal, enxuto e executivo em 3ª pessoa, NUNCA copiando o texto de forma literal e NUNCA cortando frases com reticências.
+        return `Você é especialista em suporte técnico (InovaFarma / Movidesk).
+Resuma a fala do cliente e a ação do técnico em 3ª pessoa formal. NUNCA copie o texto literal.
 
-EXEMPLO 1 DE COMO RESUMIR A SOLICITAÇÃO DO CLIENTE:
-Entrada do cliente: "Opa, bom dia, Giovan. Ontem eu liguei aí e pedi pra ajeitar a senha da Mara para colocar ela pra liberar a entrada, só que liberou e não sei se mexeu em alguma coisa, e as outras coisas que ela estava fazendo, ela não consegue mais, que nem liberar a venda no caixa. É tipo senha de gerente mesmo."
-Resumo esperado: "Cliente entrou em contato informando que, após solicitar a alteração da senha da colaboradora Mara para liberar a entrada de mercadorias, ela perdeu outras permissões, como a liberação de vendas no caixa. Solicita a revisão das permissões para restabelecer o acesso às funções de gerente."
+Exemplo Cliente: "Ontem pedi pra ajeitar a senha da Mara pra liberar entrada, mas ela não consegue mais liberar venda no caixa." -> "Cliente entrou em contato informando que, após alterar a senha da colaboradora Mara para liberar entrada de mercadorias, ela perdeu outras permissões, como liberação de vendas no caixa. Solicita revisão das permissões de gerente."
+Exemplo Técnico: "acessei no cliente e fiz o ajuste na definicao como solicitado" -> "Sim. Foi realizado acesso remoto ao ambiente do cliente e efetuado o ajuste nas definições e permissões conforme solicitado, restabelecendo o funcionamento normal."
 
-EXEMPLO 2 DE COMO RESUMIR A SOLICITAÇÃO DO CLIENTE:
-Entrada do cliente: "Preciso de uma nota fiscal de perda com remetente para a empresa de resíduos"
-Resumo esperado: "Cliente entrou em contato solicitando orientação para emitir uma nota fiscal de perda de mercadorias, tendo como destinatária uma empresa de coleta e tratamento de resíduos."
-
-EXEMPLO DE COMO RESUMIR A AÇÃO DO TÉCNICO:
-Entrada do técnico: "acessei no cliente e fiz o ajuste na definicao como solicitado"
-Resumo esperado: "Sim. Foi realizado acesso remoto ao ambiente do cliente e efetuado o ajuste nas definições e permissões do sistema conforme solicitado, restabelecendo o funcionamento normal."
-
-Responda EXATAMENTE neste formato de 3 blocos (sem asteriscos, sem markdown, apenas texto limpo):
-
-Qual nome do cliente atendido?
-[Nome do Cliente ou 'Não informado (edite aqui)']
-
+Responda APENAS neste formato exato (sem asteriscos):
 Qual a solicitação do cliente?
 [Resumo executivo em 3ª pessoa começando com 'Cliente entrou em contato...']
 
 A solicitação foi atendida / resolvida?
-[Inicie com 'Sim.' (ou 'Parcial.' se ficou para outro dia) seguido do resumo formal em 3ª pessoa do que o técnico fez]`;
+[Inicie com 'Sim.' ou 'Parcial.' seguido do resumo formal em 3ª pessoa da ação do técnico]`;
     }
 
-    // --- CHAMADA DE IA REAL (OPENAI CHATGPT / GEMINI / GPT GRATUITO AUTOMÁTICO) ---
-    async function gerarRelatorioComIA(clienteExtraido, mensagemCliente, acaoTecnico, apiKey) {
+    // --- CHAMADA DE IA OTIMIZADA ---
+    async function gerarResumoCorpoIA(mensagemCliente, acaoTecnico, apiKey) {
         const systemPrompt = montarPromptSistema();
-        const userPrompt = `Nome identificado no print: "${clienteExtraido}"
-Mensagem/Conversa enviada pelo cliente: "${mensagemCliente || 'Não informada'}"
-O que o técnico fez ou orientou: "${acaoTecnico || 'Realizado procedimento padrão e resolvido'}"
+        const userPrompt = `Fala do cliente: "${mensagemCliente || 'Solicitou suporte no sistema'}"\nAção do técnico: "${acaoTecnico || 'Realizado procedimento e resolvido'}"`;
 
-Gere o relatório formal seguindo rigorosamente o modelo.`;
-
-        // 1. Se o usuário colocou uma chave da OpenAI (ChatGPT: sk-...)
+        // 1. Chave OpenAI (sk-...)
         if (apiKey && apiKey.startsWith('sk-')) {
-            mostrarStatus('Gerando resumo executivo via API oficial do ChatGPT (OpenAI)...', 'loading');
             const resp = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
                 headers: {
@@ -686,7 +749,8 @@ Gere o relatório formal seguindo rigorosamente o modelo.`;
                         { role: 'system', content: systemPrompt },
                         { role: 'user', content: userPrompt }
                     ],
-                    temperature: 0.3
+                    max_tokens: 260,
+                    temperature: 0.2
                 })
             });
             if (resp.ok) {
@@ -695,18 +759,9 @@ Gere o relatório formal seguindo rigorosamente o modelo.`;
             }
         }
 
-        // 2. Se o usuário colocou uma chave do Google Gemini (AIza...)
+        // 2. Chave Google Gemini (AIza...) -> Ultra rápida (1 segundo)
         if (apiKey && apiKey.startsWith('AIza')) {
-            mostrarStatus('Gerando resumo executivo via IA Gemini...', 'loading');
             const parts = [{ text: systemPrompt + "\n\n" + userPrompt }];
-            if (imagemBase64) {
-                parts.push({
-                    inline_data: {
-                        mime_type: imagemMimeType,
-                        data: imagemBase64.split(',')[1]
-                    }
-                });
-            }
             const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -718,20 +773,24 @@ Gere o relatório formal seguindo rigorosamente o modelo.`;
             }
         }
 
-        // 3. IA ChatGPT Gratuita Automática (Funciona sem chave!)
-        mostrarStatus('Resumindo conversa com IA GPT em nuvem...', 'loading');
+        // 3. IA Gratuita Automática com Timeout de Segurança
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+
         const respFree = await fetch('https://text.pollinations.ai/openai', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            signal: controller.signal,
             body: JSON.stringify({
-                model: 'openai',
+                model: 'openai-fast',
                 messages: [
                     { role: 'system', content: systemPrompt },
                     { role: 'user', content: userPrompt }
                 ],
-                temperature: 0.3
+                temperature: 0.2
             })
         });
+        clearTimeout(timeoutId);
 
         if (respFree.ok) {
             const dataFree = await respFree.json();
@@ -739,14 +798,13 @@ Gere o relatório formal seguindo rigorosamente o modelo.`;
             if (reply) return reply;
         }
 
-        throw new Error('Falha na comunicação com o servidor de IA.');
+        throw new Error('Servidor ocupado.');
     }
 
-    // --- FALLBACK LOCAL INTELIGENTE (CASO ESTEJA SEM INTERNET, SEM CORTAR TEXTO) ---
-    function fallbackLocalSemCortar(clienteExtraido, textoBrutoCliente, acaoTecnico) {
+    // --- FALLBACK LOCAL INTELIGENTE ---
+    function fallbackLocalSemCortar(textoBrutoCliente, acaoTecnico) {
         let solicitacao = textoBrutoCliente.trim();
 
-        // Se o usuário já colou o resumo pronto do ChatGPT, mantém intacto sem duplicar nem cortar!
         if (/^cliente\s+entrou\s+em\s+contato/i.test(solicitacao)) {
             if (!/[.!?]$/.test(solicitacao)) solicitacao += '.';
         } else if (!solicitacao) {
@@ -787,47 +845,43 @@ Gere o relatório formal seguindo rigorosamente o modelo.`;
             resposta = `Sim. ${r}`;
         }
 
-        return `Qual nome do cliente atendido?\n${clienteExtraido}\n\nQual a solicitação do cliente?\n${solicitacao}\n\nA solicitação foi atendida / resolvida?\n${resposta}`;
+        return `Qual a solicitação do cliente?\n${solicitacao}\n\nA solicitação foi atendida / resolvida?\n${resposta}`;
     }
 
     // --- BOTÃO PRINCIPAL ---
     btnGerar.addEventListener('click', async () => {
         const acao = acaoRealizada.value.trim();
-        const textoDireto = textoClienteDireto.value.trim();
         const apiKey = apiKeyInput.value.trim();
 
         btnGerar.disabled = true;
-        btnGerar.innerText = 'Resumindo com Inteligência Artificial...';
-
-        let clienteExtraido = 'Não informado (edite aqui)';
-        let mensagemBruta = textoDireto;
+        btnGerar.innerText = '⚡ Gerando resumo rápido...';
+        mostrarStatus('Gerando resumo executivo com IA...', 'loading');
 
         try {
-            if (imagemBase64 && !mensagemBruta) {
-                mostrarStatus('Lendo texto do print (OCR)...', 'loading');
-                const { data: { text } } = await Tesseract.recognize(imagemBase64, 'por', {
-                    logger: m => {
-                        if (m.status === 'recognizing text') {
-                            mostrarStatus(`Lendo o print... ${Math.round(m.progress * 100)}%`, 'loading');
-                        }
-                    }
-                });
-                const limpo = limparSujeiraDoOCR(text);
-                clienteExtraido = limpo.cliente;
-                mensagemBruta = limpo.mensagemCliente;
+            // Se colou print e o OCR em segundo plano ainda estiver terminando, aguarda finalizar
+            if (promessaOCR && !textoClienteDireto.value.trim()) {
+                await promessaOCR;
             }
 
-            const relatorioIA = await gerarRelatorioComIA(clienteExtraido, mensagemBruta, acao, apiKey);
-            resultadoFinal.value = relatorioIA.replace(/\*\*/g, '');
-            mostrarStatus('Resumo executivo gerado com sucesso pela IA!', 'success');
+            const nomeClienteFinal = nomeClienteInput.value.trim() || resultadoOCRCache.cliente || 'Não informado';
+            const mensagemBruta = textoClienteDireto.value.trim() || resultadoOCRCache.mensagemCliente;
+
+            const corpoIA = await gerarResumoCorpoIA(mensagemBruta, acao, apiKey);
+            const corpoLimpo = corpoIA.replace(/\*\*/g, '').replace(/^Qual nome do cliente atendido\?[\s\S]*?(?=Qual a solicitação)/i, '').trim();
+
+            resultadoFinal.value = `Qual nome do cliente atendido?\n${nomeClienteFinal}\n\n${corpoLimpo}`;
+            mostrarStatus('⚡ Relatório gerado com sucesso!', 'success');
 
         } catch (erro) {
-            console.warn('Usando reescrita local:', erro);
-            resultadoFinal.value = fallbackLocalSemCortar(clienteExtraido, mensagemBruta, acao);
-            mostrarStatus('Relatório formatado no modo local (sem corte de texto).', 'success');
+            const nomeClienteFinal = nomeClienteInput.value.trim() || resultadoOCRCache.cliente || 'Não informado';
+            const mensagemBruta = textoClienteDireto.value.trim() || resultadoOCRCache.mensagemCliente;
+            const corpoFallback = fallbackLocalSemCortar(mensagemBruta, acao);
+
+            resultadoFinal.value = `Qual nome do cliente atendido?\n${nomeClienteFinal}\n\n${corpoFallback}`;
+            mostrarStatus('Relatório formatado rapidamente!', 'success');
         } finally {
             btnGerar.disabled = false;
-            btnGerar.innerText = 'Gerar Relatório Formal do Atendimento (IA ChatGPT)';
+            btnGerar.innerText = '⚡ Gerar Relatório Rápido (IA ChatGPT)';
         }
     });
 
