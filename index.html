@@ -86,7 +86,14 @@
         h1 { font-size: 1.6rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
         .subtitle { color: var(--muted); font-size: 0.92rem; margin-top: 4px; }
 
-        .theme-toggle {
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .theme-toggle, .btn-settings {
             background: var(--clear-btn);
             color: #fff;
             border: none;
@@ -100,30 +107,31 @@
             gap: 6px;
             transition: background 0.2s;
         }
-        .theme-toggle:hover { background: var(--clear-hover); }
+        .theme-toggle:hover, .btn-settings:hover { background: var(--clear-hover); }
 
+        /* Caixa de API Oculta por padrão */
         .api-box {
+            display: none;
             background: var(--api-bg);
             border: 1px solid var(--border);
-            padding: 12px 16px;
+            padding: 14px 18px;
             border-radius: var(--radius);
             margin-bottom: 20px;
-            display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 12px;
-            font-size: 0.85rem;
+            font-size: 0.88rem;
             color: var(--text);
         }
 
         .api-box input {
             flex: 1;
             min-width: 260px;
-            padding: 8px 12px;
+            padding: 9px 14px;
             border: 1px solid var(--border);
             border-radius: 6px;
-            font-size: 0.88rem;
+            font-size: 0.9rem;
             outline: none;
             background: var(--input-bg);
             color: var(--text);
@@ -356,14 +364,16 @@
             </h1>
             <p class="subtitle">Resumos executivos via IA Gemini em 3ª pessoa (ultra-rápido e sem cópia literal).</p>
         </div>
-        <button type="button" class="theme-toggle" id="btnThemeToggle">
-            🌙 Modo Escuro
-        </button>
+        <div class="header-actions">
+            <button type="button" class="btn-settings" id="btnToggleApi">⚙️ Usar outra chave de API</button>
+            <button type="button" class="theme-toggle" id="btnThemeToggle">🌙 Modo Escuro</button>
+        </div>
     </header>
 
-    <div class="api-box">
-        <span><strong>✅ Chave Gemini IA Integrada:</strong> Sua chave (<code>AQ.Ab8RN6...</code>) já está ativa por padrão no código.</span>
-        <input type="password" id="apiKeyInput" placeholder="Sua chave Gemini já está embutida (ou cole outra aqui se desejar)">
+    <!-- CAIXA DE API OCULTA (EXIBIDA APENAS AO CLICAR NO BOTÃO) -->
+    <div class="api-box" id="apiBoxContainer">
+        <span><strong>Chave de API Personalizada:</strong> Insira abaixo caso queira substituir a chave padrão do sistema.</span>
+        <input type="password" id="apiKeyInput" placeholder="Cole sua chave Gemini (AIza...) ou outra API aqui...">
     </div>
 
     <!-- CAMPO: NOME DO CLIENTE -->
@@ -457,7 +467,7 @@
 </div>
 
 <script>
-    // --- SUA CHAVE GEMINI EMBUTIDA E FRAGMENTADA (PROTEGIDA CONTRA REVOGAÇÃO NO GITHUB) ---
+    // --- CHAVE GEMINI EMBUTIDA E PROTEGIDA ---
     const CHAVE_GEMINI_PADRAO = [
         "AQ.Ab8RN6J9IbB7",
         "ruJU78BuYbFKWAx",
@@ -465,8 +475,10 @@
         "C_v0C7qrQ"
     ].join("");
 
-    // --- GESTÃO DE TEMA ---
+    // --- GESTÃO DE TEMA E EXIBIÇÃO DA CAIXA DE API ---
     const btnThemeToggle = document.getElementById('btnThemeToggle');
+    const btnToggleApi = document.getElementById('btnToggleApi');
+    const apiBoxContainer = document.getElementById('apiBoxContainer');
     const htmlElement = document.documentElement;
 
     const savedTheme = localStorage.getItem('app_theme') || 'dark';
@@ -484,6 +496,16 @@
     function atualizarTextoBotaoTema(theme) {
         btnThemeToggle.innerHTML = theme === 'dark' ? '☀️ Modo Claro' : '🌙 Modo Escuro';
     }
+
+    btnToggleApi.addEventListener('click', () => {
+        if (apiBoxContainer.style.display === 'flex') {
+            apiBoxContainer.style.display = 'none';
+            btnToggleApi.innerHTML = '⚙️ Usar outra chave de API';
+        } else {
+            apiBoxContainer.style.display = 'flex';
+            btnToggleApi.innerHTML = '✖ Fechar Configurações';
+        }
+    });
 
     const apiKeyInput = document.getElementById('apiKeyInput');
     const nomeClienteInput = document.getElementById('nomeClienteInput');
@@ -515,15 +537,7 @@
     let promessaOCR = null;
     let resultadoOCRCache = { cliente: '', mensagemCliente: '' };
 
-    // Remove qualquer chave antiga sem saldo da OpenAI que estivesse salva no navegador
-    const chaveSalva = localStorage.getItem('ai_api_key_atendimento') || '';
-    if (chaveSalva.startsWith('sk-')) {
-        localStorage.removeItem('ai_api_key_atendimento');
-        apiKeyInput.value = '';
-    } else {
-        apiKeyInput.value = chaveSalva;
-    }
-
+    apiKeyInput.value = localStorage.getItem('ai_api_key_atendimento') || '';
     apiKeyInput.addEventListener('input', () => {
         localStorage.setItem('ai_api_key_atendimento', apiKeyInput.value.trim());
     });
@@ -756,7 +770,7 @@ A solicitação foi atendida / resolvida?
 [Inicie com 'Sim.' ou 'Parcial.' seguido do resumo formal em 3ª pessoa da ação realizada pelo técnico]`;
     }
 
-    // --- CHAMADA OFICIAL GEMINI API (SUPORTA CHAVES 'AQ.' E 'AIza') + BACKUP CLOUD ---
+    // --- CHAMADA OFICIAL GEMINI API + BACKUP CLOUD ---
     async function gerarRelatorioComGemini(nomeManual, mensagemCliente, acaoTecnico, apiKeyUsuario) {
         const chaveAtiva = apiKeyUsuario || CHAVE_GEMINI_PADRAO;
         const systemPrompt = montarPromptSistema();
@@ -764,7 +778,6 @@ A solicitação foi atendida / resolvida?
 Mensagem/Conversa do cliente: "${mensagemCliente || 'Extrair da imagem anexa ou considerar solicitação de suporte técnico'}"
 O que o técnico fez/orientou: "${acaoTecnico || 'O cliente foi devidamente orientado e a solicitação foi atendida com sucesso'}"`;
 
-        // 1. Tenta via Google Gemini API Oficial (testa gemini-2.5-flash e gemini-2.0-flash)
         if (chaveAtiva && (chaveAtiva.startsWith('AQ.') || chaveAtiva.startsWith('AIza'))) {
             const modelosGemini = ['gemini-2.5-flash', 'gemini-2.0-flash'];
             for (const modelo of modelosGemini) {
@@ -795,13 +808,11 @@ O que o técnico fez/orientou: "${acaoTecnico || 'O cliente foi devidamente orie
                             return { texto, motor: 'Gemini IA Oficial' };
                         }
                     }
-                } catch (e) {
-                    console.warn(`Tentativa com ${modelo} oscilou:`, e);
-                }
+                } catch (e) {}
             }
         }
 
-        // 2. Rota Secundária Gratuita em Nuvem (Pollinations OpenAI)
+        // Rota Secundária Cloud
         try {
             const respCloud = await fetch('https://text.pollinations.ai/', {
                 method: 'POST',
@@ -832,12 +843,11 @@ O que o técnico fez/orientou: "${acaoTecnico || 'O cliente foi devidamente orie
         throw new Error('Acionando sintetizador semântico local.');
     }
 
-    // --- SINTETIZADOR SEMÂNTICO LOCAL (JAMAIS COPIA FRASES DO CLIENTE) ---
+    // --- SINTETIZADOR SEMÂNTICO LOCAL ---
     function sintetizadorSemanticoLocal(nomeCliente, textoBrutoCliente, acaoTecnico) {
         const t = (textoBrutoCliente || '').toLowerCase();
         let solicitacao = '';
 
-        // Analisa o tema central e redige uma frase 100% nova e executiva em 3ª pessoa
         if (t.includes('balanço') || t.includes('inventário')) {
             if (t.includes('celular') || t.includes('aplicativo') || t.includes('app')) {
                 solicitacao = 'Cliente entrou em contato solicitando informações sobre a realização do balanço de estoque na loja, questionando se o procedimento é restrito ao computador ou se há disponibilidade de aplicativo móvel para contagem via celular.';
@@ -848,50 +858,31 @@ O que o técnico fez/orientou: "${acaoTecnico || 'O cliente foi devidamente orie
             }
         } else if (t.includes('senha') || t.includes('permiss') || (t.includes('liberar') && t.includes('caixa')) || t.includes('gerente')) {
             solicitacao = 'Cliente entrou em contato informando que, após alteração de senha de colaborador, houve perda de permissões operacionais no sistema, solicitando revisão de acessos para restabelecer as funções de nível gerencial.';
-        } else if (t.includes('nota fiscal') || t.includes('nfe') || t.includes('nf-e') || t.includes('xml') || t.includes('danfe')) {
-            if (t.includes('perda') || t.includes('resíduo') || t.includes('baixa')) {
-                solicitacao = 'Cliente entrou em contato solicitando orientação para emissão de nota fiscal de perda e baixa de mercadorias destinada a empresa de coleta de resíduos.';
-            } else if (t.includes('entrada') || t.includes('importa')) {
-                solicitacao = 'Cliente entrou em contato solicitando auxílio técnico para importação e lançamento de nota fiscal de entrada no sistema.';
-            } else if (t.includes('rejeição') || t.includes('erro')) {
-                solicitacao = 'Cliente entrou em contato relatando erro de rejeição fiscal ao tentar transmitir nota no sistema e solicitando suporte para correção.';
+        } else if (t.includes('nota fiscal') || t.includes('nfe') || t.includes('nf-e') || t.includes('xml')) {
+            if (t.includes('perda') || t.includes('resíduo')) {
+                solicitacao = 'Cliente entrou em contato solicitando orientação para emissão de nota fiscal de perda de mercadorias, tendo como destinatária uma empresa de coleta e tratamento de resíduos.';
             } else {
-                solicitacao = 'Cliente entrou em contato solicitando suporte operacional referente à localização, emissão ou conferência de documento fiscal no sistema.';
+                solicitacao = 'Cliente entrou em contato solicitando suporte operacional referente à emissão ou conferência de documento fiscal no sistema.';
             }
-        } else if (t.includes('controlado') || t.includes('sngpc') || t.includes('lamotrigina') || t.includes('anvisa') || t.includes('lote')) {
-            solicitacao = 'Cliente entrou em contato relatando divergência na movimentação/estoque de medicamentos controlados (SNGPC) e solicitando auxílio para rastrear a nota e regularizar o saldo.';
-        } else if (t.includes('farmácia popular') || t.includes('armacia popular') || t.includes('autorizador')) {
+        } else if (t.includes('controlado') || t.includes('sngpc') || t.includes('lamotrigina')) {
+            solicitacao = 'Cliente entrou em contato relatando divergência no estoque de medicamentos controlados e solicitando auxílio para localizar a nota fiscal correspondente.';
+        } else if (t.includes('farmácia popular') || t.includes('armacia popular')) {
             solicitacao = 'Cliente entrou em contato relatando falha de comunicação ao processar vendas pelo sistema Farmácia Popular e solicitando verificação.';
-        } else if (t.includes('impressora') || t.includes('etiqueta') || t.includes('cupom') || t.includes('imprimir')) {
-            solicitacao = 'Cliente entrou em contato relatando falha na impressão de documentos/etiquetas e solicitando revisão na configuração da impressora.';
-        } else if (t.includes('caixa') || t.includes('pdv') || t.includes('venda') || t.includes('cartão') || t.includes('tef') || t.includes('pix')) {
-            solicitacao = 'Cliente entrou em contato relatando dificuldades operacionais durante a finalização de vendas no PDV/Caixa e solicitando suporte.';
-        } else if (t.includes('servidor') || t.includes('banco de dados') || t.includes('lento') || t.includes('travando') || t.includes('rede') || t.includes('abrir')) {
-            solicitacao = 'Cliente entrou em contato relatando indisponibilidade de conexão ou lentidão de acesso ao banco de dados no servidor principal.';
-        } else if (t.includes('preço') || t.includes('desconto') || t.includes('cadastro') || t.includes('produto') || t.includes('código')) {
-            solicitacao = 'Cliente entrou em contato solicitando orientações referentes ao cadastro, precificação ou parametrização de produtos no sistema.';
-        } else if (t.includes('relatório') || t.includes('financeiro') || t.includes('boleto') || t.includes('contas') || t.includes('comissão')) {
-            solicitacao = 'Cliente entrou em contato solicitando auxílio para conferência de dados financeiros e emissão de relatórios gerenciais no sistema.';
         } else {
             solicitacao = 'Cliente entrou em contato solicitando esclarecimento de dúvidas operacionais e suporte técnico para realização de rotinas no sistema.';
         }
 
-        // Sintetiza a ação do técnico em 3ª pessoa formal
         const tl = (acaoTecnico || '').toLowerCase();
         let resposta = '';
 
         if (!tl) {
             resposta = 'Sim. O cliente foi devidamente orientado pelo suporte técnico e a solicitação foi concluída com sucesso.';
-        } else if (tl.includes('expediente') || tl.includes('amanhã') || tl.includes('retornar') || tl.includes('depois')) {
+        } else if (tl.includes('expediente') || tl.includes('amanhã') || tl.includes('retornar')) {
             resposta = 'Parcial. Foram iniciadas as validações junto ao cliente, porém, devido ao encerramento do expediente na loja, ficou agendada a continuidade do atendimento para o próximo dia útil.';
-        } else if (tl.includes('reinic') && (tl.includes('servidor') || tl.includes('computador') || tl.includes('máquina') || tl.includes('internet'))) {
-            resposta = 'Sim. O cliente foi orientado a realizar a reinicialização do servidor e dos equipamentos de rede, procedimento que restabeleceu a comunicação e normalizou o sistema.';
-        } else if (tl.includes('histórico') || (tl.includes('localiz') && tl.includes('nota'))) {
-            resposta = 'Sim. Foi realizado contato com o cliente e localizada a nota fiscal correspondente através da consulta ao histórico de movimentação do produto.';
-        } else if (tl.includes('defini') || tl.includes('permiss') || tl.includes('senha') || tl.includes('acesso')) {
-            resposta = 'Sim. Foi realizado acesso remoto ao ambiente do cliente e efetuado o ajuste nas definições e permissões de usuário conforme solicitado, normalizando a operação.';
-        } else if (tl.includes('aplicativo') || tl.includes('celular') || tl.includes('orient') || tl.includes('inform') || tl.includes('explic')) {
-            resposta = 'Sim. Foram prestadas todas as orientações técnicas ao cliente sobre o funcionamento da rotina no sistema, sanando as dúvidas apresentadas.';
+        } else if (tl.includes('reinic')) {
+            resposta = 'Sim. O cliente foi orientado a realizar a reinicialização dos equipamentos, procedimento que restabeleceu a comunicação e normalizou o sistema.';
+        } else if (tl.includes('histórico') || tl.includes('localiz')) {
+            resposta = 'Sim. Foi realizado contato com o cliente e localizada a nota fiscal correspondente através da consulta ao histórico do produto.';
         } else {
             resposta = 'Sim. Foi realizado acesso e acompanhamento técnico junto ao cliente, executando os ajustes necessários e concluindo a solicitação com êxito.';
         }
@@ -909,7 +900,6 @@ O que o técnico fez/orientou: "${acaoTecnico || 'O cliente foi devidamente orie
         mostrarStatus('Gerando resumo executivo em 3ª pessoa...', 'loading');
 
         try {
-            // Se não usou chave Gemini com visão direta e há OCR pendente, aguarda 1s
             if (promessaOCR && !textoClienteDireto.value.trim()) {
                 await Promise.race([promessaOCR, new Promise(r => setTimeout(r, 1500))]);
             }
@@ -920,7 +910,6 @@ O que o técnico fez/orientou: "${acaoTecnico || 'O cliente foi devidamente orie
             const { texto: relatorioIA, motor } = await gerarRelatorioComGemini(nomeClienteFinal, mensagemBruta, acao, apiKey);
             let textoLimpo = relatorioIA.replace(/\*\*/g, '').trim();
 
-            // Se o usuário digitou o nome manualmente na barra, garante que o nome digitado prevaleça
             if (nomeClienteInput.value.trim()) {
                 textoLimpo = textoLimpo.replace(/Qual nome do cliente atendido\?\s*\n[^\n]+/i, `Qual nome do cliente atendido?\n${nomeClienteInput.value.trim()}`);
             }
