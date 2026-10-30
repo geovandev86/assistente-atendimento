@@ -86,14 +86,7 @@
         h1 { font-size: 1.6rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
         .subtitle { color: var(--muted); font-size: 0.92rem; margin-top: 4px; }
 
-        .header-actions {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .theme-toggle, .btn-settings {
+        .theme-toggle {
             background: var(--clear-btn);
             color: #fff;
             border: none;
@@ -107,35 +100,36 @@
             gap: 6px;
             transition: background 0.2s;
         }
-        .theme-toggle:hover, .btn-settings:hover { background: var(--clear-hover); }
+        .theme-toggle:hover { background: var(--clear-hover); }
 
-        /* Caixa de API Oculta por padrão */
         .api-box {
-            display: none;
             background: var(--api-bg);
             border: 1px solid var(--border);
-            padding: 14px 18px;
+            padding: 12px 16px;
             border-radius: var(--radius);
             margin-bottom: 20px;
+            display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 12px;
-            font-size: 0.88rem;
+            font-size: 0.85rem;
             color: var(--text);
         }
 
         .api-box input {
             flex: 1;
             min-width: 260px;
-            padding: 9px 14px;
+            padding: 8px 12px;
             border: 1px solid var(--border);
             border-radius: 6px;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             outline: none;
             background: var(--input-bg);
             color: var(--text);
         }
+
+        .api-box a { color: var(--primary); font-weight: 600; }
 
         .client-name-bar {
             background: var(--api-bg);
@@ -341,7 +335,7 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
 
-        #resultadoFinal {
+        #resultadoFinal, #respostaCliente {
             font-family: 'Courier New', Courier, monospace;
             font-size: 0.98rem;
             line-height: 1.6;
@@ -362,18 +356,16 @@
                 <svg style="width:28px;height:28px;fill:var(--primary);" viewBox="0 0 24 24"><path d="M12 2A10 10 0 0 0 2 12A10 10 0 0 0 12 22A10 10 0 0 0 22 12A10 10 0 0 0 12 2M12 4A8 8 0 0 1 20 12A8 8 0 0 1 12 20A8 8 0 0 1 4 12A8 8 0 0 1 12 4M12 6A6 6 0 0 0 6 12A6 6 0 0 0 12 18A6 6 0 0 0 18 12A6 6 0 0 0 12 6M12 8A4 4 0 0 1 16 12A4 4 0 0 1 12 16A4 4 0 0 1 8 12A4 4 0 0 1 12 8Z"/></svg>
                 Assistente de Atendimento
             </h1>
-            <p class="subtitle">Resumos executivos via IA Gemini em 3ª pessoa (ultra-rápido e sem cópia literal).</p>
+            <p class="subtitle">Resumo do que o cliente falou e sugestão de resposta, com IA gratuita.</p>
         </div>
-        <div class="header-actions">
-            <button type="button" class="btn-settings" id="btnToggleApi">⚙️ Usar outra chave de API</button>
-            <button type="button" class="theme-toggle" id="btnThemeToggle">🌙 Modo Escuro</button>
-        </div>
+        <button type="button" class="theme-toggle" id="btnThemeToggle">
+            🌙 Modo Escuro
+        </button>
     </header>
 
-    <!-- CAIXA DE API OCULTA (EXIBIDA APENAS AO CLICAR NO BOTÃO) -->
-    <div class="api-box" id="apiBoxContainer">
-        <span><strong>Chave de API Personalizada:</strong> Insira abaixo caso queira substituir a chave padrão do sistema.</span>
-        <input type="password" id="apiKeyInput" placeholder="Cole sua chave Gemini (AIza...) ou outra API aqui...">
+    <div class="api-box">
+        <span><strong>🔑 Chave do Groq (gratuita):</strong> fica salva só neste navegador, nunca no site. <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Criar chave</a></span>
+        <input type="password" id="apiKeyInput" placeholder="Cole aqui sua chave do Groq" autocomplete="off">
     </div>
 
     <!-- CAMPO: NOME DO CLIENTE -->
@@ -421,7 +413,7 @@
         <!-- PASSO 2 -->
         <div class="step-card">
             <div class="step-title">
-                <span>2. O que você fez ou orientou?</span>
+                <span>2. O que você fez ou orientou? (opcional)</span>
                 <span id="micStatus" style="font-size: 0.78rem; color: var(--muted);">Desligado</span>
             </div>
             <div class="voice-controls">
@@ -444,16 +436,16 @@
 
     <button type="button" id="btnGerar" class="btn-primary">
         <svg viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z"/></svg>
-        ⚡ Gerar Relatório Executivo (Gemini IA)
+        ⚡ Gerar Resumo e Resposta
     </button>
 
     <div id="statusBox"></div>
 
     <div class="result-box">
         <div class="step-title">
-            <span>3. Resposta Pronta (Padrão Formal em 3ª Pessoa)</span>
+            <span>3. Resumo para o Movidesk</span>
         </div>
-        <textarea id="resultadoFinal" placeholder="O relatório resumido pela IA aparecerá aqui..."></textarea>
+        <textarea id="resultadoFinal" placeholder="O resumo do que o cliente falou aparecerá aqui..."></textarea>
         <div class="export-bar">
             <button type="button" id="btnCopiar" class="btn-record" style="background: var(--primary);">
                 <svg viewBox="0 0 24 24"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/></svg>
@@ -464,21 +456,24 @@
             <button type="button" id="btnPdf" class="btn-outline">Baixar .PDF</button>
         </div>
     </div>
+
+    <div class="result-box" style="margin-top: 24px;">
+        <div class="step-title">
+            <span>4. Como devo responder ao cliente</span>
+        </div>
+        <textarea id="respostaCliente" placeholder="A sugestão de resposta para o cliente aparecerá aqui..."></textarea>
+        <div class="export-bar">
+            <button type="button" id="btnCopiarResposta" class="btn-record" style="background: var(--primary);">
+                <svg viewBox="0 0 24 24"><path d="M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z"/></svg>
+                Copiar Resposta
+            </button>
+        </div>
+    </div>
 </div>
 
 <script>
-    // --- CHAVE GEMINI EMBUTIDA E PROTEGIDA ---
-    const CHAVE_GEMINI_PADRAO = [
-        "AQ.Ab8RN6J9IbB7",
-        "ruJU78BuYbFKWAx",
-        "9Hk1D_F3W6Rfw-",
-        "C_v0C7qrQ"
-    ].join("");
-
-    // --- GESTÃO DE TEMA E EXIBIÇÃO DA CAIXA DE API ---
+    // --- GESTÃO DE TEMA ---
     const btnThemeToggle = document.getElementById('btnThemeToggle');
-    const btnToggleApi = document.getElementById('btnToggleApi');
-    const apiBoxContainer = document.getElementById('apiBoxContainer');
     const htmlElement = document.documentElement;
 
     const savedTheme = localStorage.getItem('app_theme') || 'dark';
@@ -496,16 +491,6 @@
     function atualizarTextoBotaoTema(theme) {
         btnThemeToggle.innerHTML = theme === 'dark' ? '☀️ Modo Claro' : '🌙 Modo Escuro';
     }
-
-    btnToggleApi.addEventListener('click', () => {
-        if (apiBoxContainer.style.display === 'flex') {
-            apiBoxContainer.style.display = 'none';
-            btnToggleApi.innerHTML = '⚙️ Usar outra chave de API';
-        } else {
-            apiBoxContainer.style.display = 'flex';
-            btnToggleApi.innerHTML = '✖ Fechar Configurações';
-        }
-    });
 
     const apiKeyInput = document.getElementById('apiKeyInput');
     const nomeClienteInput = document.getElementById('nomeClienteInput');
@@ -527,19 +512,23 @@
     const btnGerar = document.getElementById('btnGerar');
     const statusBox = document.getElementById('statusBox');
     const resultadoFinal = document.getElementById('resultadoFinal');
+    const respostaCliente = document.getElementById('respostaCliente');
     const btnCopiar = document.getElementById('btnCopiar');
+    const btnCopiarResposta = document.getElementById('btnCopiarResposta');
     const btnTxt = document.getElementById('btnTxt');
     const btnDoc = document.getElementById('btnDoc');
     const btnPdf = document.getElementById('btnPdf');
 
     let imagemBase64 = null;
-    let imagemMimeType = 'image/png';
     let promessaOCR = null;
     let resultadoOCRCache = { cliente: '', mensagemCliente: '' };
 
-    apiKeyInput.value = localStorage.getItem('ai_api_key_atendimento') || '';
+    // Apaga a chave antiga do Gemini que estivesse salva no navegador
+    localStorage.removeItem('ai_api_key_atendimento');
+    apiKeyInput.value = localStorage.getItem('groq_api_key_atendimento') || '';
+
     apiKeyInput.addEventListener('input', () => {
-        localStorage.setItem('ai_api_key_atendimento', apiKeyInput.value.trim());
+        localStorage.setItem('groq_api_key_atendimento', apiKeyInput.value.trim());
     });
 
     btnLimparCliente.addEventListener('click', () => {
@@ -573,21 +562,20 @@
         }
     }
 
-    function definirImagemBase64(dataUrl, mime = 'image/png') {
+    function definirImagemBase64(dataUrl) {
         imagemBase64 = dataUrl;
-        imagemMimeType = mime;
         previewImg.src = imagemBase64;
         previewImg.style.display = 'block';
         dropText.style.display = 'none';
         btnRemoverImg.style.display = 'inline-flex';
-        mostrarStatus('Print carregado! A IA Gemini lerá a imagem diretamente.', 'success');
+        mostrarStatus('Print carregado! Lendo o texto da imagem...', 'success');
         promessaOCR = processarOCRInstantaneo(dataUrl);
     }
 
     function carregarFicheiroImagem(file) {
         if (!file || !file.type.startsWith('image/')) return false;
         const reader = new FileReader();
-        reader.onload = (e) => definirImagemBase64(e.target.result, file.type);
+        reader.onload = (e) => definirImagemBase64(e.target.result);
         reader.readAsDataURL(file);
         return true;
     }
@@ -745,149 +733,105 @@
     }
 
     // --- PROMPT EXECUTIVO RIGOROSO ---
-    function montarPromptSistema() {
+    const TITULO_RESPOSTA = 'Como devo responder ao cliente?';
+
+    function montarPromptSistema(temAcaoTecnico) {
+        const blocoResolucao = temAcaoTecnico ? `
+A solicitação foi atendida / resolvida?
+[Inicie com 'Sim.', 'Não.' ou 'Parcial.' seguido do resumo formal em 3ª pessoa da ação realizada pelo técnico]
+` : '';
+
         return `Você é um analista sênior de suporte técnico de sistemas para farmácias (InovaFarma / Movidesk).
-Sua única tarefa é transformar a mensagem informal do cliente (ou imagem de print) e a anotação do técnico em um RESUMO EXECUTIVO formal em 3ª pessoa.
+Sua tarefa é resumir o que o cliente disse e sugerir a resposta que o técnico deve enviar ao cliente, em português correto.
 
-REGRAS ABSOLUTAS:
+REGRAS DO RESUMO:
 1. NUNCA copie frases literais do cliente, saudações ("bom dia", "deixa eu tirar uma dúvida", "aqui na loja") e NUNCA use pontos de interrogação (?) no resumo.
-2. Reescreva tudo com vocabulário técnico corporativo em 3ª pessoa.
+2. Reescreva com vocabulário técnico corporativo em 3ª pessoa, corrigindo erros de português da fala ou da digitação.
+3. Ignore a triagem da assistente virtual Alice. Considere apenas o que o cliente e o atendente disseram.
+4. Nunca inclua data nem hora.
+5. Não elogie o atendimento.
+6. Use no máximo duas frases por resposta e termine cada frase com ponto final.
 
-Exemplos de referência:
+REGRAS DA RESPOSTA AO CLIENTE:
+1. Escreva em 1ª pessoa, como o técnico falando diretamente com o cliente, em tom cordial e profissional.
+2. Deve ficar pronta para enviar, com no máximo cinco frases e sem título.
+3. Se o técnico informou o que fez ou orientou, explique isso ao cliente em linguagem simples.
+4. Se o técnico não informou e o cliente relatou um problema, confirme que entendeu e peça apenas a informação indispensável para seguir com o atendimento.
+5. Se o técnico não informou e o cliente fez uma pergunta, confirme que entendeu a dúvida e diga que vai verificar e retornará em seguida, sem fazer perguntas ao cliente.
+
+REGRA GERAL: NUNCA invente informação, procedimento, caminho de menu, prazo ou solução. Use somente o que consta na conversa e na anotação do técnico.
+
+Exemplos de resumo:
 - Cliente: "deixa eu tirar uma dúvida contigo. Aqui estamos fazendo o balanço aqui na loja e eu gostaria de saber se só tem como fazer o balanço pelo computador ou também tem como colocar o aplicativo pelo celular para fazer também?"
   Resumo: "Cliente entrou em contato solicitando informações sobre a realização do balanço de estoque, questionando se o procedimento é restrito ao computador ou se há disponibilidade de aplicativo móvel para contagem via celular."
-- Cliente: "Ontem pedi pra ajeitar a senha da Mara pra liberar entrada, mas ela não consegue mais liberar venda no caixa."
-  Resumo: "Cliente entrou em contato informando que, após a alteração de senha da colaboradora Mara para liberação de entrada de mercadorias, o usuário perdeu outras permissões operacionais, como a liberação de vendas no caixa. Solicita revisão das permissões de nível gerencial."
+- Cliente: "Ontem pedi pra ajeitar a senha da colaboradora pra liberar entrada, mas ela não consegue mais liberar venda no caixa."
+  Resumo: "Cliente entrou em contato informando que, após a alteração de senha de uma colaboradora para liberação de entrada de mercadorias, o usuário perdeu outras permissões operacionais, como a liberação de vendas no caixa. Solicita revisão das permissões de nível gerencial."
 
-Responda EXATAMENTE neste formato de 3 blocos (sem asteriscos, sem markdown):
+Responda EXATAMENTE neste formato (sem asteriscos, sem markdown):
 Qual nome do cliente atendido?
-[Nome do Cliente - Nome da Farmácia extraído do print ou informado]
+[Nome – Empresa, extraídos da conversa ou informados. Sem o nome, escreva: Não identificado na conversa]
 
 Qual a solicitação do cliente?
 [Resumo executivo formal em 3ª pessoa iniciando com 'Cliente entrou em contato...']
-
-A solicitação foi atendida / resolvida?
-[Inicie com 'Sim.' ou 'Parcial.' seguido do resumo formal em 3ª pessoa da ação realizada pelo técnico]`;
+${blocoResolucao}
+${TITULO_RESPOSTA}
+[Mensagem pronta para o técnico enviar ao cliente]`;
     }
 
-    // --- CHAMADA OFICIAL GEMINI API + BACKUP CLOUD ---
-    async function gerarRelatorioComGemini(nomeManual, mensagemCliente, acaoTecnico, apiKeyUsuario) {
-        const chaveAtiva = apiKeyUsuario || CHAVE_GEMINI_PADRAO;
-        const systemPrompt = montarPromptSistema();
-        const userPrompt = `Nome do cliente informado: "${nomeManual || 'Extrair do topo do print se houver, senão Não informado'}"
-Mensagem/Conversa do cliente: "${mensagemCliente || 'Extrair da imagem anexa ou considerar solicitação de suporte técnico'}"
-O que o técnico fez/orientou: "${acaoTecnico || 'O cliente foi devidamente orientado e a solicitação foi atendida com sucesso'}"`;
+    // --- CHAMADA À API DO GROQ ---
+    const MODELOS_GROQ = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
 
-        if (chaveAtiva && (chaveAtiva.startsWith('AQ.') || chaveAtiva.startsWith('AIza'))) {
-            const modelosGemini = ['gemini-2.5-flash', 'gemini-2.0-flash'];
-            for (const modelo of modelosGemini) {
-                try {
-                    const parts = [{ text: systemPrompt + "\n\n" + userPrompt }];
-                    if (imagemBase64) {
-                        parts.push({
-                            inline_data: {
-                                mime_type: imagemMimeType,
-                                data: imagemBase64.split(',')[1]
-                            }
-                        });
-                    }
-
-                    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent?key=${encodeURIComponent(chaveAtiva)}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts }],
-                            generationConfig: { temperature: 0.2, maxOutputTokens: 350 }
-                        })
-                    });
-
-                    if (resp.ok) {
-                        const data = await resp.json();
-                        const texto = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-                        if (texto && texto.includes('Qual a solicitação')) {
-                            return { texto, motor: 'Gemini IA Oficial' };
-                        }
-                    }
-                } catch (e) {}
-            }
-        }
-
-        // Rota Secundária Cloud
-        try {
-            const respCloud = await fetch('https://text.pollinations.ai/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    messages: [
-                        { role: 'system', content: systemPrompt },
-                        { role: 'user', content: userPrompt }
-                    ],
-                    model: 'openai',
-                    private: true
-                })
-            });
-            if (respCloud.ok) {
-                let raw = (await respCloud.text()).trim();
-                if (raw.startsWith('{')) {
-                    try {
-                        const j = JSON.parse(raw);
-                        raw = (j.choices?.[0]?.message?.content || j.response || raw).trim();
-                    } catch (e) {}
-                }
-                if (raw && raw.includes('Qual a solicitação')) {
-                    return { texto: raw, motor: 'IA Cloud' };
-                }
-            }
-        } catch (e) {}
-
-        throw new Error('Acionando sintetizador semântico local.');
+    function explicarErroGroq(status, mensagem) {
+        if (status === 401) return 'Chave do Groq inválida. Confira se ela foi colada inteira ou crie outra.';
+        if (status === 403) return `A chave não tem permissão para usar o Groq. (${mensagem})`;
+        if (status === 429) return 'Limite gratuito do Groq atingido. Aguarde um pouco e tente de novo.';
+        return `O Groq não respondeu (${status}). ${mensagem}`;
     }
 
-    // --- SINTETIZADOR SEMÂNTICO LOCAL ---
-    function sintetizadorSemanticoLocal(nomeCliente, textoBrutoCliente, acaoTecnico) {
-        const t = (textoBrutoCliente || '').toLowerCase();
-        let solicitacao = '';
+    async function gerarResumoComGroq(nomeManual, mensagemCliente, acaoTecnico, apiKey) {
+        const userPrompt = `Nome do cliente informado: "${nomeManual || 'Não informado'}"
+Mensagem/Conversa do cliente: "${mensagemCliente}"
+O que o técnico fez/orientou: "${acaoTecnico || 'Não informado'}"`;
 
-        if (t.includes('balanço') || t.includes('inventário')) {
-            if (t.includes('celular') || t.includes('aplicativo') || t.includes('app')) {
-                solicitacao = 'Cliente entrou em contato solicitando informações sobre a realização do balanço de estoque na loja, questionando se o procedimento é restrito ao computador ou se há disponibilidade de aplicativo móvel para contagem via celular.';
-            } else if (t.includes('stock brasil') || t.includes('estoque brasil') || t.includes('arquivo')) {
-                solicitacao = 'Cliente entrou em contato solicitando a geração e exportação do arquivo de produtos para inventário no formato padrão Stock Brasil.';
-            } else {
-                solicitacao = 'Cliente entrou em contato solicitando suporte técnico e orientações para a realização de balanço e ajuste de estoque no sistema.';
+        let ultimoErro = 'O Groq não devolveu o resumo. Tente de novo.';
+
+        for (const modelo of MODELOS_GROQ) {
+            let resp;
+            try {
+                resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+                    body: JSON.stringify({
+                        model: modelo,
+                        messages: [
+                            { role: 'system', content: montarPromptSistema(Boolean(acaoTecnico)) },
+                            { role: 'user', content: userPrompt }
+                        ],
+                        temperature: 0.2,
+                        max_tokens: 2048
+                    })
+                });
+            } catch (e) {
+                ultimoErro = 'Não foi possível falar com o Groq. Verifique a internet.';
+                continue;
             }
-        } else if (t.includes('senha') || t.includes('permiss') || (t.includes('liberar') && t.includes('caixa')) || t.includes('gerente')) {
-            solicitacao = 'Cliente entrou em contato informando que, após alteração de senha de colaborador, houve perda de permissões operacionais no sistema, solicitando revisão de acessos para restabelecer as funções de nível gerencial.';
-        } else if (t.includes('nota fiscal') || t.includes('nfe') || t.includes('nf-e') || t.includes('xml')) {
-            if (t.includes('perda') || t.includes('resíduo')) {
-                solicitacao = 'Cliente entrou em contato solicitando orientação para emissão de nota fiscal de perda de mercadorias, tendo como destinatária uma empresa de coleta e tratamento de resíduos.';
-            } else {
-                solicitacao = 'Cliente entrou em contato solicitando suporte operacional referente à emissão ou conferência de documento fiscal no sistema.';
+
+            if (!resp.ok) {
+                const corpo = await resp.json().catch(() => ({}));
+                ultimoErro = explicarErroGroq(resp.status, corpo.error?.message || '');
+                // Erro de chave é igual em todos os modelos; só vale tentar o próximo nos outros casos
+                if ([401, 403].includes(resp.status)) break;
+                continue;
             }
-        } else if (t.includes('controlado') || t.includes('sngpc') || t.includes('lamotrigina')) {
-            solicitacao = 'Cliente entrou em contato relatando divergência no estoque de medicamentos controlados e solicitando auxílio para localizar a nota fiscal correspondente.';
-        } else if (t.includes('farmácia popular') || t.includes('armacia popular')) {
-            solicitacao = 'Cliente entrou em contato relatando falha de comunicação ao processar vendas pelo sistema Farmácia Popular e solicitando verificação.';
-        } else {
-            solicitacao = 'Cliente entrou em contato solicitando esclarecimento de dúvidas operacionais e suporte técnico para realização de rotinas no sistema.';
+
+            const data = await resp.json();
+            const texto = (data.choices?.[0]?.message?.content || '').trim();
+            if (texto.includes('Qual a solicitação') && texto.includes(TITULO_RESPOSTA)) {
+                return { texto, motor: modelo };
+            }
         }
 
-        const tl = (acaoTecnico || '').toLowerCase();
-        let resposta = '';
-
-        if (!tl) {
-            resposta = 'Sim. O cliente foi devidamente orientado pelo suporte técnico e a solicitação foi concluída com sucesso.';
-        } else if (tl.includes('expediente') || tl.includes('amanhã') || tl.includes('retornar')) {
-            resposta = 'Parcial. Foram iniciadas as validações junto ao cliente, porém, devido ao encerramento do expediente na loja, ficou agendada a continuidade do atendimento para o próximo dia útil.';
-        } else if (tl.includes('reinic')) {
-            resposta = 'Sim. O cliente foi orientado a realizar a reinicialização dos equipamentos, procedimento que restabeleceu a comunicação e normalizou o sistema.';
-        } else if (tl.includes('histórico') || tl.includes('localiz')) {
-            resposta = 'Sim. Foi realizado contato com o cliente e localizada a nota fiscal correspondente através da consulta ao histórico do produto.';
-        } else {
-            resposta = 'Sim. Foi realizado acesso e acompanhamento técnico junto ao cliente, executando os ajustes necessários e concluindo a solicitação com êxito.';
-        }
-
-        return `Qual nome do cliente atendido?\n${nomeCliente}\n\nQual a solicitação do cliente?\n${solicitacao}\n\nA solicitação foi atendida / resolvida?\n${resposta}`;
+        throw new Error(ultimoErro);
     }
 
     // --- BOTÃO PRINCIPAL ---
@@ -895,41 +839,64 @@ O que o técnico fez/orientou: "${acaoTecnico || 'O cliente foi devidamente orie
         const acao = acaoRealizada.value.trim();
         const apiKey = apiKeyInput.value.trim();
 
+        if (!apiKey) {
+            mostrarStatus('Cole sua chave gratuita do Groq no campo do topo da página.', 'error');
+            apiKeyInput.focus();
+            return;
+        }
+        if (!imagemBase64 && !textoClienteDireto.value.trim()) {
+            mostrarStatus('Cole o print ou a conversa do cliente antes de gerar.', 'error');
+            textoClienteDireto.focus();
+            return;
+        }
+
         btnGerar.disabled = true;
-        btnGerar.innerText = '⚡ Gerando resumo executivo...';
-        mostrarStatus('Gerando resumo executivo em 3ª pessoa...', 'loading');
+        btnGerar.innerText = '⚡ Gerando resumo e resposta...';
+        resultadoFinal.value = '';
+        respostaCliente.value = '';
+        mostrarStatus('Gerando resumo e resposta...', 'loading');
 
         try {
+            // O Groq recebe só texto: o print precisa terminar de ser lido antes do envio
             if (promessaOCR && !textoClienteDireto.value.trim()) {
-                await Promise.race([promessaOCR, new Promise(r => setTimeout(r, 1500))]);
+                await promessaOCR;
             }
 
-            const nomeClienteFinal = nomeClienteInput.value.trim() || resultadoOCRCache.cliente || 'Não informado';
+            const nomeClienteFinal = nomeClienteInput.value.trim() || resultadoOCRCache.cliente;
             const mensagemBruta = textoClienteDireto.value.trim() || resultadoOCRCache.mensagemCliente;
 
-            const { texto: relatorioIA, motor } = await gerarRelatorioComGemini(nomeClienteFinal, mensagemBruta, acao, apiKey);
-            let textoLimpo = relatorioIA.replace(/\*\*/g, '').trim();
-
-            if (nomeClienteInput.value.trim()) {
-                textoLimpo = textoLimpo.replace(/Qual nome do cliente atendido\?\s*\n[^\n]+/i, `Qual nome do cliente atendido?\n${nomeClienteInput.value.trim()}`);
+            if (!mensagemBruta) {
+                throw new Error('Não consegui ler o texto do print. Cole a conversa no campo de texto.');
             }
 
-            resultadoFinal.value = textoLimpo;
-            mostrarStatus(`✅ Resumo executivo gerado com sucesso (${motor})!`, 'success');
+            const { texto, motor } = await gerarResumoComGroq(nomeClienteFinal, mensagemBruta, acao, apiKey);
+            const textoLimpo = texto.replace(/\*\*/g, '').trim();
+            const inicioResposta = textoLimpo.indexOf(TITULO_RESPOSTA);
+            let resumo = textoLimpo.slice(0, inicioResposta).trim();
+
+            // Se o usuário digitou o nome manualmente na barra, garante que o nome digitado prevaleça
+            if (nomeClienteInput.value.trim()) {
+                resumo = resumo.replace(/Qual nome do cliente atendido\?\s*\n[^\n]+/i, `Qual nome do cliente atendido?\n${nomeClienteInput.value.trim()}`);
+            }
+
+            resultadoFinal.value = resumo;
+            respostaCliente.value = textoLimpo.slice(inicioResposta + TITULO_RESPOSTA.length).trim();
+            mostrarStatus(`✅ Resumo e resposta gerados (${motor})!`, 'success');
 
         } catch (erro) {
-            const nomeClienteFinal = nomeClienteInput.value.trim() || resultadoOCRCache.cliente || 'Não informado';
-            const mensagemBruta = textoClienteDireto.value.trim() || resultadoOCRCache.mensagemCliente;
-
-            resultadoFinal.value = sintetizadorSemanticoLocal(nomeClienteFinal, mensagemBruta, acao);
-            mostrarStatus('✅ Resumo executivo gerado em 3ª pessoa (sem cópia literal)!', 'success');
+            mostrarStatus(`❌ ${erro.message}`, 'error');
         } finally {
             btnGerar.disabled = false;
-            btnGerar.innerText = '⚡ Gerar Relatório Executivo (Gemini IA)';
+            btnGerar.innerText = '⚡ Gerar Resumo e Resposta';
         }
     });
 
-    btnCopiar.addEventListener('click', () => {
+    btnCopiarResposta.addEventListener('click', () => {
+        navigator.clipboard.writeText(respostaCliente.value);
+        mostrarStatus('Resposta copiada! Cole na conversa com o cliente.', 'success');
+    });
+
+btnCopiar.addEventListener('click', () => {
         navigator.clipboard.writeText(resultadoFinal.value);
         mostrarStatus('Resposta copiada para a área de transferência! Cole no Movidesk.', 'success');
     });
