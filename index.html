@@ -102,35 +102,6 @@
         }
         .theme-toggle:hover { background: var(--clear-hover); }
 
-        .api-box {
-            background: var(--api-bg);
-            border: 1px solid var(--border);
-            padding: 12px 16px;
-            border-radius: var(--radius);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            font-size: 0.85rem;
-            color: var(--text);
-        }
-
-        .api-box input {
-            flex: 1;
-            min-width: 260px;
-            padding: 8px 12px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 0.88rem;
-            outline: none;
-            background: var(--input-bg);
-            color: var(--text);
-        }
-
-        .api-box a { color: var(--primary); font-weight: 600; }
-
         .client-name-bar {
             background: var(--api-bg);
             border: 2px solid var(--primary);
@@ -363,11 +334,6 @@
         </button>
     </header>
 
-    <div class="api-box">
-        <span><strong>🔑 Chave do Groq (gratuita):</strong> fica salva só neste navegador, nunca no site. <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Criar chave</a></span>
-        <input type="password" id="apiKeyInput" placeholder="Cole aqui sua chave do Groq" autocomplete="off">
-    </div>
-
     <!-- CAMPO: NOME DO CLIENTE -->
     <div class="client-name-bar">
         <label for="nomeClienteInput">
@@ -492,7 +458,6 @@
         btnThemeToggle.innerHTML = theme === 'dark' ? '☀️ Modo Claro' : '🌙 Modo Escuro';
     }
 
-    const apiKeyInput = document.getElementById('apiKeyInput');
     const nomeClienteInput = document.getElementById('nomeClienteInput');
     const btnLimparCliente = document.getElementById('btnLimparCliente');
     const pasteZone = document.getElementById('pasteZone');
@@ -523,13 +488,9 @@
     let promessaOCR = null;
     let resultadoOCRCache = { cliente: '', mensagemCliente: '' };
 
-    // Apaga a chave antiga do Gemini que estivesse salva no navegador
+    // Apaga chaves salvas no navegador por versões antigas da página
     localStorage.removeItem('ai_api_key_atendimento');
-    apiKeyInput.value = localStorage.getItem('groq_api_key_atendimento') || '';
-
-    apiKeyInput.addEventListener('input', () => {
-        localStorage.setItem('groq_api_key_atendimento', apiKeyInput.value.trim());
-    });
+    localStorage.removeItem('groq_api_key_atendimento');
 
     btnLimparCliente.addEventListener('click', () => {
         nomeClienteInput.value = '';
@@ -587,7 +548,7 @@
 
     document.addEventListener('paste', (e) => {
         const el = document.activeElement;
-        if (el === textoClienteDireto || el === acaoRealizada || el === apiKeyInput || el === nomeClienteInput) {
+        if (el === textoClienteDireto || el === acaoRealizada || el === nomeClienteInput) {
             return;
         }
         const clipboard = e.clipboardData || window.clipboardData;
@@ -732,118 +693,33 @@
         return { cliente, mensagemCliente: mensagemUnida };
     }
 
-    // --- PROMPT EXECUTIVO RIGOROSO ---
-    const TITULO_RESPOSTA = 'Como devo responder ao cliente?';
+    // --- CHAMADA AO SERVIDOR DA PÁGINA ---
+    // O servidor guarda a chave da IA; a pasta worker/ deste repositório tem o código dele
+    const URL_SERVIDOR = 'https://assistente-atendimento.geovandev86.workers.dev';
 
-    function montarPromptSistema(temAcaoTecnico) {
-        const blocoResolucao = temAcaoTecnico ? `
-A solicitação foi atendida / resolvida?
-[Inicie com 'Sim.', 'Não.' ou 'Parcial.' seguido do resumo formal em 3ª pessoa da ação realizada pelo técnico]
-` : '';
-
-        return `Você é um analista sênior de suporte técnico de sistemas para farmácias (InovaFarma / Movidesk).
-Sua tarefa é resumir o que o cliente disse e sugerir a resposta que o técnico deve enviar ao cliente, em português correto.
-
-REGRAS DO RESUMO:
-1. NUNCA copie frases literais do cliente, saudações ("bom dia", "deixa eu tirar uma dúvida", "aqui na loja") e NUNCA use pontos de interrogação (?) no resumo.
-2. Reescreva com vocabulário técnico corporativo em 3ª pessoa, corrigindo erros de português da fala ou da digitação.
-3. Ignore a triagem da assistente virtual Alice. Considere apenas o que o cliente e o atendente disseram.
-4. Nunca inclua data nem hora.
-5. Não elogie o atendimento.
-6. Use no máximo duas frases por resposta e termine cada frase com ponto final.
-
-REGRAS DA RESPOSTA AO CLIENTE:
-1. Escreva em 1ª pessoa, como o técnico falando diretamente com o cliente, em tom cordial e profissional.
-2. Deve ficar pronta para enviar, com no máximo cinco frases e sem título.
-3. Se o técnico informou o que fez ou orientou, explique isso ao cliente em linguagem simples.
-4. Se o técnico não informou e o cliente relatou um problema, confirme que entendeu e peça apenas a informação indispensável para seguir com o atendimento.
-5. Se o técnico não informou e o cliente fez uma pergunta, confirme que entendeu a dúvida e diga que vai verificar e retornará em seguida, sem fazer perguntas ao cliente.
-
-REGRA GERAL: NUNCA invente informação, procedimento, caminho de menu, prazo ou solução. Use somente o que consta na conversa e na anotação do técnico.
-
-Exemplos de resumo:
-- Cliente: "deixa eu tirar uma dúvida contigo. Aqui estamos fazendo o balanço aqui na loja e eu gostaria de saber se só tem como fazer o balanço pelo computador ou também tem como colocar o aplicativo pelo celular para fazer também?"
-  Resumo: "Cliente entrou em contato solicitando informações sobre a realização do balanço de estoque, questionando se o procedimento é restrito ao computador ou se há disponibilidade de aplicativo móvel para contagem via celular."
-- Cliente: "Ontem pedi pra ajeitar a senha da colaboradora pra liberar entrada, mas ela não consegue mais liberar venda no caixa."
-  Resumo: "Cliente entrou em contato informando que, após a alteração de senha de uma colaboradora para liberação de entrada de mercadorias, o usuário perdeu outras permissões operacionais, como a liberação de vendas no caixa. Solicita revisão das permissões de nível gerencial."
-
-Responda EXATAMENTE neste formato (sem asteriscos, sem markdown):
-Qual nome do cliente atendido?
-[Nome – Empresa, extraídos da conversa ou informados. Sem o nome, escreva: Não identificado na conversa]
-
-Qual a solicitação do cliente?
-[Resumo executivo formal em 3ª pessoa iniciando com 'Cliente entrou em contato...']
-${blocoResolucao}
-${TITULO_RESPOSTA}
-[Mensagem pronta para o técnico enviar ao cliente]`;
-    }
-
-    // --- CHAMADA À API DO GROQ ---
-    const MODELOS_GROQ = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
-
-    function explicarErroGroq(status, mensagem) {
-        if (status === 401) return 'Chave do Groq inválida. Confira se ela foi colada inteira ou crie outra.';
-        if (status === 403) return `A chave não tem permissão para usar o Groq. (${mensagem})`;
-        if (status === 429) return 'Limite gratuito do Groq atingido. Aguarde um pouco e tente de novo.';
-        return `O Groq não respondeu (${status}). ${mensagem}`;
-    }
-
-    async function gerarResumoComGroq(nomeManual, mensagemCliente, acaoTecnico, apiKey) {
-        const userPrompt = `Nome do cliente informado: "${nomeManual || 'Não informado'}"
-Mensagem/Conversa do cliente: "${mensagemCliente}"
-O que o técnico fez/orientou: "${acaoTecnico || 'Não informado'}"`;
-
-        let ultimoErro = 'O Groq não devolveu o resumo. Tente de novo.';
-
-        for (const modelo of MODELOS_GROQ) {
-            let resp;
-            try {
-                resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-                    body: JSON.stringify({
-                        model: modelo,
-                        messages: [
-                            { role: 'system', content: montarPromptSistema(Boolean(acaoTecnico)) },
-                            { role: 'user', content: userPrompt }
-                        ],
-                        temperature: 0.2,
-                        max_tokens: 2048
-                    })
-                });
-            } catch (e) {
-                ultimoErro = 'Não foi possível falar com o Groq. Verifique a internet.';
-                continue;
-            }
-
-            if (!resp.ok) {
-                const corpo = await resp.json().catch(() => ({}));
-                ultimoErro = explicarErroGroq(resp.status, corpo.error?.message || '');
-                // Erro de chave é igual em todos os modelos; só vale tentar o próximo nos outros casos
-                if ([401, 403].includes(resp.status)) break;
-                continue;
-            }
-
-            const data = await resp.json();
-            const texto = (data.choices?.[0]?.message?.content || '').trim();
-            if (texto.includes('Qual a solicitação') && texto.includes(TITULO_RESPOSTA)) {
-                return { texto, motor: modelo };
-            }
+    async function gerarResumoNoServidor(nome, mensagem, acao) {
+        let resp;
+        try {
+            resp = await fetch(URL_SERVIDOR, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, mensagem, acao })
+            });
+        } catch (e) {
+            throw new Error('Não foi possível falar com o servidor. Verifique a internet.');
         }
 
-        throw new Error(ultimoErro);
+        const dados = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+            throw new Error(dados.erro || `O servidor não respondeu (${resp.status}). Tente de novo.`);
+        }
+        return dados;
     }
 
     // --- BOTÃO PRINCIPAL ---
     btnGerar.addEventListener('click', async () => {
         const acao = acaoRealizada.value.trim();
-        const apiKey = apiKeyInput.value.trim();
 
-        if (!apiKey) {
-            mostrarStatus('Cole sua chave gratuita do Groq no campo do topo da página.', 'error');
-            apiKeyInput.focus();
-            return;
-        }
         if (!imagemBase64 && !textoClienteDireto.value.trim()) {
             mostrarStatus('Cole o print ou a conversa do cliente antes de gerar.', 'error');
             textoClienteDireto.focus();
@@ -857,7 +733,7 @@ O que o técnico fez/orientou: "${acaoTecnico || 'Não informado'}"`;
         mostrarStatus('Gerando resumo e resposta...', 'loading');
 
         try {
-            // O Groq recebe só texto: o print precisa terminar de ser lido antes do envio
+            // A IA recebe só texto: o print precisa terminar de ser lido antes do envio
             if (promessaOCR && !textoClienteDireto.value.trim()) {
                 await promessaOCR;
             }
@@ -869,18 +745,13 @@ O que o técnico fez/orientou: "${acaoTecnico || 'Não informado'}"`;
                 throw new Error('Não consegui ler o texto do print. Cole a conversa no campo de texto.');
             }
 
-            const { texto, motor } = await gerarResumoComGroq(nomeClienteFinal, mensagemBruta, acao, apiKey);
-            const textoLimpo = texto.replace(/\*\*/g, '').trim();
-            const inicioResposta = textoLimpo.indexOf(TITULO_RESPOSTA);
-            let resumo = textoLimpo.slice(0, inicioResposta).trim();
+            const { resumo, resposta, motor } = await gerarResumoNoServidor(nomeClienteFinal, mensagemBruta, acao);
 
             // Se o usuário digitou o nome manualmente na barra, garante que o nome digitado prevaleça
-            if (nomeClienteInput.value.trim()) {
-                resumo = resumo.replace(/Qual nome do cliente atendido\?\s*\n[^\n]+/i, `Qual nome do cliente atendido?\n${nomeClienteInput.value.trim()}`);
-            }
-
-            resultadoFinal.value = resumo;
-            respostaCliente.value = textoLimpo.slice(inicioResposta + TITULO_RESPOSTA.length).trim();
+            resultadoFinal.value = nomeClienteInput.value.trim()
+                ? resumo.replace(/Qual nome do cliente atendido\?\s*\n[^\n]+/i, `Qual nome do cliente atendido?\n${nomeClienteInput.value.trim()}`)
+                : resumo;
+            respostaCliente.value = resposta;
             mostrarStatus(`✅ Resumo e resposta gerados (${motor})!`, 'success');
 
         } catch (erro) {
@@ -891,7 +762,7 @@ O que o técnico fez/orientou: "${acaoTecnico || 'Não informado'}"`;
         }
     });
 
-    btnCopiarResposta.addEventListener('click', () => {
+btnCopiarResposta.addEventListener('click', () => {
         navigator.clipboard.writeText(respostaCliente.value);
         mostrarStatus('Resposta copiada! Cole na conversa com o cliente.', 'success');
     });
