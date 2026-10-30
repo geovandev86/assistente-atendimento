@@ -240,6 +240,9 @@
 
         .movidesk-bar input:focus { border-color: var(--primary); }
 
+        .movidesk-ajuda { margin-top: 10px; font-size: 0.82rem; color: var(--muted); }
+        .movidesk-ajuda a { color: var(--primary); font-weight: 600; }
+
         .export-bar {
             display: flex;
             gap: 10px;
@@ -451,6 +454,7 @@
             <input type="text" inputmode="numeric" id="ticketInput" placeholder="Número do ticket" autocomplete="off">
             <button type="button" id="btnAbrirTicket" class="btn-record">Copiar e Abrir no Movidesk</button>
         </div>
+        <p class="movidesk-ajuda" id="ajudaPreencher">Para o resumo já aparecer no ticket, instale o <a href="https://chromewebstore.google.com/detail/dhdgffkkebhmkfjojejmpbldmpobfkfo" target="_blank" rel="noopener">Tampermonkey</a> e depois <a href="assistente-movidesk.user.js" target="_blank" rel="noopener">este script</a>.</p>
     </div>
 
     <div class="result-box" style="margin-top: 24px;">
@@ -512,6 +516,7 @@
     const respostaCliente = document.getElementById('respostaCliente');
     const ticketInput = document.getElementById('ticketInput');
     const btnAbrirTicket = document.getElementById('btnAbrirTicket');
+    const ajudaPreencher = document.getElementById('ajudaPreencher');
     const btnCopiar = document.getElementById('btnCopiar');
     const btnCopiarResposta = document.getElementById('btnCopiarResposta');
     const btnTxt = document.getElementById('btnTxt');
@@ -864,6 +869,10 @@
     // --- ABRIR O TICKET NO MOVIDESK ---
     const URL_TICKET = 'https://skytechgroup.movidesk.com/Ticket/Edit/';
 
+    // O script do Tampermonkey marca a página quando está instalado
+    const temPreenchimento = () => document.documentElement.dataset.preencherMovidesk === '1';
+    if (temPreenchimento()) ajudaPreencher.style.display = 'none';
+
     btnAbrirTicket.addEventListener('click', async () => {
         const texto = resultadoFinal.value.trim();
         const ticket = ticketInput.value.trim();
@@ -885,6 +894,8 @@
             return;
         }
 
+        window.postMessage({ tipo: 'assistente-preencher-ticket', ticket, texto }, location.origin);
+
         if (!window.open(URL_TICKET + ticket, '_blank')) {
             mostrarStatus('Resumo copiado, mas o navegador bloqueou a nova aba. Permita pop-ups deste site.', 'error');
             return;
@@ -892,7 +903,9 @@
 
         // Limpa o número para o resumo do próximo cliente não ir ao ticket anterior
         ticketInput.value = '';
-        mostrarStatus(`✅ Resumo copiado! Cole no ticket ${ticket} com Ctrl + V e salve.`, 'success');
+        mostrarStatus(temPreenchimento()
+            ? `✅ Resumo enviado ao ticket ${ticket}. Confira no Movidesk e salve.`
+            : `✅ Resumo copiado! Cole no ticket ${ticket} com Ctrl + V e salve.`, 'success');
     });
 
     btnCopiarResposta.addEventListener('click', () => {
