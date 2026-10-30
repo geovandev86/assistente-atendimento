@@ -219,6 +219,27 @@
             white-space: nowrap;
         }
 
+        .movidesk-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+
+        .movidesk-bar input {
+            flex: 1;
+            min-width: 180px;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+            background: var(--input-bg);
+            color: var(--text);
+        }
+
+        .movidesk-bar input:focus { border-color: var(--primary); }
+
         .export-bar {
             display: flex;
             gap: 10px;
@@ -426,6 +447,10 @@
             <button type="button" id="btnDoc" class="btn-outline">Baixar Word (.DOC)</button>
             <button type="button" id="btnPdf" class="btn-outline">Baixar .PDF</button>
         </div>
+        <div class="movidesk-bar">
+            <input type="text" inputmode="numeric" id="ticketInput" placeholder="Número do ticket" autocomplete="off">
+            <button type="button" id="btnAbrirTicket" class="btn-record">Copiar e Abrir no Movidesk</button>
+        </div>
     </div>
 
     <div class="result-box" style="margin-top: 24px;">
@@ -485,6 +510,8 @@
     const statusBox = document.getElementById('statusBox');
     const resultadoFinal = document.getElementById('resultadoFinal');
     const respostaCliente = document.getElementById('respostaCliente');
+    const ticketInput = document.getElementById('ticketInput');
+    const btnAbrirTicket = document.getElementById('btnAbrirTicket');
     const btnCopiar = document.getElementById('btnCopiar');
     const btnCopiarResposta = document.getElementById('btnCopiarResposta');
     const btnTxt = document.getElementById('btnTxt');
@@ -834,12 +861,46 @@
         }
     });
 
-btnCopiarResposta.addEventListener('click', () => {
+    // --- ABRIR O TICKET NO MOVIDESK ---
+    const URL_TICKET = 'https://skytechgroup.movidesk.com/Ticket/Edit/';
+
+    btnAbrirTicket.addEventListener('click', async () => {
+        const texto = resultadoFinal.value.trim();
+        const ticket = ticketInput.value.trim();
+
+        if (!texto) {
+            mostrarStatus('Gere o resumo antes de abrir o ticket.', 'error');
+            return;
+        }
+        if (!/^\d{1,10}$/.test(ticket)) {
+            mostrarStatus('Digite um número de ticket válido.', 'error');
+            ticketInput.focus();
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(texto);
+        } catch (e) {
+            mostrarStatus('Não consegui copiar o resumo. Clique na página e tente de novo.', 'error');
+            return;
+        }
+
+        if (!window.open(URL_TICKET + ticket, '_blank')) {
+            mostrarStatus('Resumo copiado, mas o navegador bloqueou a nova aba. Permita pop-ups deste site.', 'error');
+            return;
+        }
+
+        // Limpa o número para o resumo do próximo cliente não ir ao ticket anterior
+        ticketInput.value = '';
+        mostrarStatus(`✅ Resumo copiado! Cole no ticket ${ticket} com Ctrl + V e salve.`, 'success');
+    });
+
+    btnCopiarResposta.addEventListener('click', () => {
         navigator.clipboard.writeText(respostaCliente.value);
         mostrarStatus('Resposta copiada! Cole na conversa com o cliente.', 'success');
     });
 
-btnCopiar.addEventListener('click', () => {
+    btnCopiar.addEventListener('click', () => {
         navigator.clipboard.writeText(resultadoFinal.value);
         mostrarStatus('Resposta copiada para a área de transferência! Cole no Movidesk.', 'success');
     });
