@@ -3,6 +3,9 @@
 const MODELOS_GROQ = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
 const MAX_CARACTERES = 12000;
 const TITULO_RESPOSTA = 'Como devo responder ao cliente?';
+const URL_TRANSCRICAO = 'https://api.groq.com/openai/v1/audio/transcriptions';
+// 25 MB do limite do Groq, mais a folga do envelope do formulário
+const MAX_BYTES_AUDIO = 26 * 1024 * 1024;
 
 function montarPromptSistema(temAcaoTecnico) {
     const blocoResolucao = temAcaoTecnico ? `
@@ -119,6 +122,44 @@ O que o técnico fez/orientou: "${acao || 'Não informado'}"`;
     return { erro };
 }
 
+// Repassa o áudio sem processar, para não gastar o limite de CPU do plano gratuito
+async function transcreverAudio(request, env, origem) {
+    const tipo = request.headers.get('Content-Type') || '';
+    if (!tipo.startsWith('multipart/form-data')) {
+        return responderJson({ erro: 'Envie o arquivo de áudio.' }, 400, origem);
+    }
+    if (Number(request.headers.get('Content-Length') || 0) > MAX_BYTES_AUDIO) {
+        return responderJson({ erro: 'Áudio muito grande. O limite é 25 MB.' }, 413, origem);
+    }
+
+    let resp;
+    try {
+        resp = await fetch(URL_TRANSCRICAO, {
+            method: 'POST',
+            headers: { 'Content-Type': tipo, 'Authorization': `Bearer ${env.GROQ_API_KEY}` },
+            body: request.body
+        });
+    } catch (e) {
+        return responderJson({ erro: 'O servidor não conseguiu falar com a IA. Tente de novo.' }, 502, origem);
+    }
+
+    if (resp.status === 401 || resp.status === 403) {
+        return responderJson({ erro: 'A chave da IA no servidor não é válida. Avise o responsável pela página.' }, 502, origem);
+    }
+    if (resp.status === 429) {
+        return responderJson({ erro: 'Limite gratuito de áudio atingido. Aguarde um pouco e tente de novo.' }, 429, origem);
+    }
+    if (resp.status === 400 || resp.status === 413) {
+        return responderJson({ erro: 'Não consegui ler este áudio. Use mp3, ogg, m4a ou wav de até 25 MB.' }, 400, origem);
+    }
+    if (!resp.ok) {
+        return responderJson({ erro: `A IA não respondeu (${resp.status}). Tente de novo.` }, 502, origem);
+    }
+
+    const data = await resp.json();
+    return responderJson({ texto: (data.text || '').trim() }, 200, origem);
+}
+
 export default {
     async fetch(request, env) {
         const origem = request.headers.get('Origin') || '';
@@ -136,6 +177,10 @@ export default {
         const { success } = await env.LIMITADOR.limit({ key: ip });
         if (!success) {
             return responderJson({ erro: 'Muitos pedidos em pouco tempo. Aguarde um minuto.' }, 429, origem);
+        }
+
+        if (new URL(request.url).pathname === '/transcrever') {
+            return transcreverAudio(request, env, origem);
         }
 
         const dados = await request.json().catch(() => null);
