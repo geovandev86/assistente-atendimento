@@ -102,6 +102,9 @@
         }
         .theme-toggle:hover { background: var(--clear-hover); }
 
+        .acoes-topo { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-novo-atendimento { width: 100%; margin-top: 24px; }
+
         .client-name-bar {
             background: var(--api-bg);
             border: 2px solid var(--primary);
@@ -398,9 +401,12 @@
             </h1>
             <p class="subtitle">Resumo do que o cliente falou e sugestão de resposta, com IA gratuita.</p>
         </div>
-        <button type="button" class="theme-toggle" id="btnThemeToggle">
-            🌙 Modo Escuro
-        </button>
+        <div class="acoes-topo">
+            <button type="button" class="theme-toggle btn-novo">↺ Novo Atendimento</button>
+            <button type="button" class="theme-toggle" id="btnThemeToggle">
+                🌙 Modo Escuro
+            </button>
+        </div>
     </header>
 
     <!-- CAMPO: NOME DO CLIENTE -->
@@ -543,6 +549,8 @@
             </button>
         </div>
     </div>
+
+    <button type="button" class="btn-clear btn-novo btn-novo-atendimento">↺ Novo Atendimento</button>
 </div>
 
 <script>
@@ -618,6 +626,8 @@
         ocrStatus.innerText = '⏳ Lendo print...';
         try {
             const { data: { text } } = await Tesseract.recognize(dataUrl, 'por');
+            if (imagemBase64 !== dataUrl) return;
+
             const limpo = limparSujeiraDoOCR(text);
             resultadoOCRCache = limpo;
 
@@ -1146,6 +1156,27 @@
     });
 
     desenharModelos();
+
+    // --- NOVO ATENDIMENTO ---
+    function novoAtendimento() {
+        // O botão Gerar fica travado enquanto há áudio ou resumo em andamento
+        if (btnGerar.disabled) {
+            mostrarStatus('Aguarde terminar antes de começar um novo atendimento.', 'error');
+            return;
+        }
+
+        if (microfoneAtivo) btnPararVoz.click();
+        btnRemoverImg.click();
+
+        [nomeClienteInput, textoClienteDireto, acaoRealizada, resultadoFinal, respostaCliente].forEach(campo => { campo.value = ''; });
+        statusBox.style.display = 'none';
+        statusBox.innerText = '';
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        nomeClienteInput.focus();
+    }
+
+    document.querySelectorAll('.btn-novo').forEach(botao => botao.addEventListener('click', novoAtendimento));
 </script>
 
 </body>
