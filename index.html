@@ -140,6 +140,75 @@
 
         .client-name-bar input:focus { border-color: var(--primary); }
 
+        [hidden] { display: none !important; }
+
+        .abas {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .aba {
+            background: transparent;
+            color: var(--muted);
+            border-radius: 8px 8px 0 0;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .aba:hover { color: var(--text); }
+        .aba.ativa { color: var(--primary); border-bottom-color: var(--primary); }
+
+        .lista-modelos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .modelo-card {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modelo-titulo { font-weight: 600; }
+        .modelo-acoes { display: flex; gap: 8px; margin-top: auto; }
+        .modelo-acoes .btn-record { flex: 1; }
+
+        .form-modelo {
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-modelo label { font-weight: 600; font-size: 0.9rem; display: flex; flex-direction: column; gap: 6px; }
+
+        .form-modelo input {
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 400;
+            outline: none;
+            background: var(--input-bg);
+            color: var(--text);
+        }
+
+        .form-modelo input:focus { border-color: var(--primary); }
+        .form-acoes { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn-excluir { background: var(--danger); color: white; margin-left: auto; }
+        .btn-excluir:hover { background: var(--danger-hover); }
+
         .grid-steps {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -344,6 +413,12 @@
         <button type="button" id="btnLimparCliente" class="btn-clear" style="padding: 9px 12px;" title="Limpar nome">Limpar</button>
     </div>
 
+    <div class="abas">
+        <button type="button" class="aba ativa" data-painel="painelIA">Atendimento com IA</button>
+        <button type="button" class="aba" data-painel="painelModelos">Chamados Prontos</button>
+    </div>
+
+    <div id="painelIA">
     <div class="grid-steps">
         <!-- PASSO 1 -->
         <div class="step-card">
@@ -409,6 +484,34 @@
         <svg viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z"/></svg>
         ⚡ Gerar Resumo e Resposta
     </button>
+
+    </div>
+
+    <div id="painelModelos" hidden>
+        <p class="subtitle" style="margin-bottom: 14px;">Digite o nome do cliente no topo da página e clique em Usar. Os modelos ficam salvos neste navegador.</p>
+        <div class="lista-modelos" id="listaModelos"></div>
+        <button type="button" id="btnNovoModelo" class="btn-outline" style="margin-bottom: 16px;">+ Novo Modelo</button>
+
+        <div class="form-modelo" id="formModelo" hidden>
+            <label>Nome do modelo
+                <input type="text" id="modeloTitulo" placeholder="Ex.: Erro de NCM na venda">
+            </label>
+            <label>Solicitação do cliente
+                <textarea id="modeloSolicitacao" rows="3" placeholder="Cliente entrou em contato..."></textarea>
+            </label>
+            <label>O que foi feito
+                <textarea id="modeloResolucao" rows="3" placeholder="Sim. Acessei o computador e..."></textarea>
+            </label>
+            <label>Resposta ao cliente (opcional)
+                <textarea id="modeloResposta" rows="3" placeholder="Olá! ..."></textarea>
+            </label>
+            <div class="form-acoes">
+                <button type="button" id="btnSalvarModelo" class="btn-record">Salvar Modelo</button>
+                <button type="button" id="btnCancelarModelo" class="btn-outline">Cancelar</button>
+                <button type="button" id="btnExcluirModelo" class="btn-excluir" hidden>Excluir</button>
+            </div>
+        </div>
+    </div>
 
     <div id="statusBox"></div>
 
@@ -870,6 +973,179 @@
         doc.text(linhas, 15, 20);
         doc.save('relatorio_atendimento.pdf');
     });
+
+    // --- ABAS ---
+    const abas = document.querySelectorAll('.aba');
+    const paineis = [document.getElementById('painelIA'), document.getElementById('painelModelos')];
+
+    abas.forEach(aba => aba.addEventListener('click', () => {
+        abas.forEach(a => a.classList.toggle('ativa', a === aba));
+        paineis.forEach(p => { p.hidden = p.id !== aba.dataset.painel; });
+    }));
+
+    // --- CHAMADOS PRONTOS ---
+    const CHAVE_MODELOS = 'modelos_chamado';
+    const MODELOS_INICIAIS = [
+        {
+            id: 'inicial-ncm',
+            titulo: 'Erro de NCM na venda',
+            solicitacao: 'Cliente entrou em contato relatando erro de NCM ao finalizar a venda de um produto no caixa.',
+            resolucao: 'Sim. Acessei a estação e executei o processo tributário para corrigir o NCM do produto.',
+            resposta: 'Olá! Executei o processo tributário e corrigi o NCM do produto. Por favor, confirme se a venda foi concluída normalmente.'
+        },
+        {
+            id: 'inicial-produto',
+            titulo: 'Produto não encontrado no caixa',
+            solicitacao: 'Cliente entrou em contato informando que o produto não foi localizado no caixa durante a venda.',
+            resolucao: 'Sim. Corrigi o cadastro do produto e realizei a sincronização.',
+            resposta: 'Olá! Corrigi o cadastro do produto e fiz a sincronização. Por favor, confirme se ele já aparece no caixa.'
+        },
+        {
+            id: 'inicial-impressora',
+            titulo: 'Cupom não imprime',
+            solicitacao: 'Cliente entrou em contato informando que o cupom não estava sendo impresso ao concluir a venda.',
+            resolucao: 'Sim. Acessei a estação e ajustei a configuração da impressora.',
+            resposta: 'Olá! Ajustei a configuração da impressora. Por favor, faça uma venda de teste e confirme se o cupom saiu normalmente.'
+        },
+        {
+            id: 'inicial-certificado',
+            titulo: 'Configuração de certificado digital',
+            solicitacao: 'Cliente entrou em contato solicitando a configuração do certificado digital.',
+            resolucao: 'Sim. Acessei o cliente e efetuei a configuração do certificado conforme solicitado.',
+            resposta: 'Olá! Configurei o certificado digital conforme solicitado. Por favor, confirme se está tudo certo no sistema.'
+        }
+    ];
+
+    const listaModelos = document.getElementById('listaModelos');
+    const formModelo = document.getElementById('formModelo');
+    const btnNovoModelo = document.getElementById('btnNovoModelo');
+    const btnExcluirModelo = document.getElementById('btnExcluirModelo');
+    const camposModelo = {
+        titulo: document.getElementById('modeloTitulo'),
+        solicitacao: document.getElementById('modeloSolicitacao'),
+        resolucao: document.getElementById('modeloResolucao'),
+        resposta: document.getElementById('modeloResposta')
+    };
+
+    let modelos = carregarModelos();
+    let modeloEmEdicao = null;
+
+    function carregarModelos() {
+        try {
+            const salvos = JSON.parse(localStorage.getItem(CHAVE_MODELOS));
+            if (Array.isArray(salvos)) return salvos;
+        } catch (e) {}
+        return MODELOS_INICIAIS.map(m => ({ ...m }));
+    }
+
+    function gravarModelos() {
+        try {
+            localStorage.setItem(CHAVE_MODELOS, JSON.stringify(modelos));
+            return true;
+        } catch (e) {
+            mostrarStatus('Não consegui salvar neste navegador. Verifique se o site pode guardar dados.', 'error');
+            return false;
+        }
+    }
+
+    function desenharModelos() {
+        listaModelos.innerHTML = '';
+        if (!modelos.length) {
+            listaModelos.textContent = 'Nenhum modelo salvo. Clique em Novo Modelo para criar um.';
+            return;
+        }
+
+        modelos.forEach(modelo => {
+            const card = document.createElement('div');
+            card.className = 'modelo-card';
+
+            const titulo = document.createElement('div');
+            titulo.className = 'modelo-titulo';
+            titulo.textContent = modelo.titulo;
+
+            const acoes = document.createElement('div');
+            acoes.className = 'modelo-acoes';
+
+            const btnUsar = document.createElement('button');
+            btnUsar.type = 'button';
+            btnUsar.className = 'btn-record';
+            btnUsar.textContent = 'Usar';
+            btnUsar.addEventListener('click', () => usarModelo(modelo));
+
+            const btnEditar = document.createElement('button');
+            btnEditar.type = 'button';
+            btnEditar.className = 'btn-outline';
+            btnEditar.textContent = 'Editar';
+            btnEditar.addEventListener('click', () => abrirFormulario(modelo));
+
+            acoes.append(btnUsar, btnEditar);
+            card.append(titulo, acoes);
+            listaModelos.appendChild(card);
+        });
+    }
+
+    function usarModelo(modelo) {
+        const nome = nomeClienteInput.value.trim();
+        if (!nome) {
+            mostrarStatus('Digite o nome do cliente no topo da página.', 'error');
+            nomeClienteInput.focus();
+            return;
+        }
+
+        resultadoFinal.value = `Qual nome do cliente atendido?\n${nome}\n\nQual a solicitação do cliente?\n${modelo.solicitacao}\n\nA solicitação foi atendida / resolvida?\n${modelo.resolucao}`;
+        respostaCliente.value = modelo.resposta || '';
+        mostrarStatus(`✅ Chamado pronto: ${modelo.titulo}. Confira e copie abaixo.`, 'success');
+        statusBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function abrirFormulario(modelo) {
+        modeloEmEdicao = modelo;
+        Object.keys(camposModelo).forEach(campo => { camposModelo[campo].value = modelo ? modelo[campo] || '' : ''; });
+        btnExcluirModelo.hidden = !modelo;
+        formModelo.hidden = false;
+        btnNovoModelo.hidden = true;
+        camposModelo.titulo.focus();
+    }
+
+    function fecharFormulario() {
+        modeloEmEdicao = null;
+        formModelo.hidden = true;
+        btnNovoModelo.hidden = false;
+    }
+
+    btnNovoModelo.addEventListener('click', () => abrirFormulario(null));
+    document.getElementById('btnCancelarModelo').addEventListener('click', fecharFormulario);
+
+    document.getElementById('btnSalvarModelo').addEventListener('click', () => {
+        const dados = {};
+        Object.keys(camposModelo).forEach(campo => { dados[campo] = camposModelo[campo].value.trim(); });
+
+        if (!dados.titulo || !dados.solicitacao || !dados.resolucao) {
+            mostrarStatus('Preencha o nome do modelo, a solicitação e o que foi feito.', 'error');
+            return;
+        }
+
+        if (modeloEmEdicao) {
+            Object.assign(modeloEmEdicao, dados);
+        } else {
+            modelos.push({ id: String(Date.now()), ...dados });
+        }
+
+        if (gravarModelos()) mostrarStatus(`✅ Modelo salvo: ${dados.titulo}.`, 'success');
+        fecharFormulario();
+        desenharModelos();
+    });
+
+    btnExcluirModelo.addEventListener('click', () => {
+        if (!modeloEmEdicao || !confirm(`Excluir o modelo "${modeloEmEdicao.titulo}"?`)) return;
+        modelos = modelos.filter(m => m !== modeloEmEdicao);
+        gravarModelos();
+        fecharFormulario();
+        desenharModelos();
+        mostrarStatus('Modelo excluído.', 'success');
+    });
+
+    desenharModelos();
 </script>
 
 </body>
